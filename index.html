@@ -1140,14 +1140,14 @@
       <!--
         SIDEBAR BUTTON: March 2024
         Shows the March 2024 publication page.
-      
+    -->
       <button class="sidebar-btn"
               id="btn-mar2024"
               onclick="showPage('mar2024')">
-        <span class="btn-date">December 2025</span>
-        <span class="btn-meta">Volume 1</span>
+        <span class="btn-date">February 2026
+        <span class="btn-meta">Volume 3</span>
       </button>
-    -->
+    
 
       <!--
         SIDEBAR BUTTON: June 2024
@@ -1351,54 +1351,104 @@
       -->
       <section class="page-section" id="mar2024">
 
-        <h1 class="page-title">March 2024</h1>
-        <p class="page-meta">Volume I &middot; Issue 2 &middot; March 12, 2024</p>
+        <h1 class="page-title">January 2026</h1>
+        <p class="page-meta">Volume 2 &middot; 4 Papers &middot; </p>
         <hr class="page-rule-accent" />
 
-        <div class="content-body">
+        <!--
+    ACCORDION CONTAINER
+    Each accordion-item holds one title and one body.
+    Items start closed by default. Add class "open" to
+    any item to have it expanded on page load.
+-->
+<div class="accordion">
 
-          <h2 class="content-heading">New Directions</h2>
+  <div class="accordion-item">
 
-          <p>
-            Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum
-            nibh, ut fermentum massa justo sit amet risus. Cras mattis
-            consectetur purus sit amet fermentum. Cras justo odio, dapibus
-            ac facilisis in, egestas eget quam. Nullam quis risus eget urna
-            mollis ornare vel eu leo. Donec sed odio dui.
-          </p>
+        <!-- Title button — clicking toggles this item open/closed -->
+        <button class="accordion-btn" onclick="toggleAccordion(this)">
+            Scientists demonstrate Psilocybin’s ability to improve novel object recognition in intellectual disability rats through the modulation of BDNF pathways, independent of psilocybin 5HT2a agonism.
+            <!-- Arrow rotates via CSS when parent has "open" class -->
+            <span class="accordion-arrow">&#9660;</span>
+        </button>
 
-          <p>
-            Integer posuere erat a ante venenatis dapibus posuere velit
-            aliquet. Aenean lacinia bibendum nulla sed consectetur.
-            Cum sociis natoque penatibus et magnis dis parturient montes,
-            nascetur ridiculus mus. Donec ullamcorper nulla non metus
-            auctor fringilla. Nullam id dolor id nibh ultricies vehicula
-            ut id elit.
-          </p>
+        <!-- Body — hidden by default, revealed when item is open -->
+        <div class="accordion-body">
+            <div class="accordion-body-inner">
+                <p>Fragile X Syndrome (FXS) is the most common inherited intellectual disability and is the leading cause of monogenic autism spectrum disorder (ASD). Both FXS and ASD have serotonergic dysregulation as a consistent feature, due to serotonins role in neurodevelopment, and synaptic maturation. Although psilocybin largely acts on the 5HT2a receptor (serotonergic), its wider effects include the promotion of neural plasticity, via increased BDNF signalling. </p>
+                <br>
+                <p>These researchers had previously shown that microdosing psilocybin in the same rat model as used in this study improved novel object recognition, with this study aiming to identify the mechanisms behind this. To do this, during the microdose treatment period, rats were given a 5HT1a, and 5HT2a receptor antagonist before each dose, as well as a TrkB antagonist (0.5mg/kg & 1mg/kg). All rats were then tested with a novel object recognition task, to assess the recovering of visual learning abilities. </p>
+                <br>
+               <p>As expected, psilocybin was able to improve object recognition in FXS rats, with this effect persisting in both rats given a 5HT1a and 5HT2a antagonist before each dose. On the other hand, rats given a TrkB antagonist (1mg/kg) in combination with psilocybin microdose, did not show recovered ability in the novel object recognition task; however, this was only in rats that experienced the higher dose of TrkB antagonists, not those with a dose of 0.5mg/kg.</p>
+               <br>
+               <p>Since object recognition abilities remained were still recovered in rats given 5HT1a & 5HT2a receptor antagonists, researchers suggest that the mechanism by which psilocybin rescues these cognitive abilities is independent of serotonin receptor activation. Instead, since object recognition was not recovered in rats given a stronger TrkB antagonist, which would disrupt BDNF signalling, researchers suggest that this BDNF signalling pathway is how psilocybin rescues these cognitive deficits.</p>
+               <br> 
+               <p>By separating the therapeutic effects of psilocybin from hallucinatory pathways, the findings of this research show promising evidence for microdosing psilocybin as a potential future treatment.</p>
 
-          <blockquote class="pull-quote">
-            "Spring does not ask permission to arrive. It simply does —
-            an assertion of life against all the evidence of winter."
-          </blockquote>
-
-          <p>
-            Etiam porta sem malesuada magna mollis euismod. Cras mattis
-            consectetur purus sit amet fermentum. Nullam id dolor id nibh
-            ultricies vehicula ut id elit. Praesent commodo cursus magna,
-            vel scelerisque nisl consectetur et. Donec id elit non mi
-            porta gravida at eget metus.
-          </p>
-
-          <h2 class="content-heading">Correspondence &amp; Notes</h2>
-
-          <p>
-            Maecenas faucibus mollis interdum. Vestibulum id ligula porta
-            felis euismod semper. Curabitur blandit tempus porttitor.
-            Nulla vitae elit libero, a pharetra augue. Praesent commodo
-            cursus magna, vel scelerisque nisl consectetur et.
-          </p>
-
+            </div>
         </div>
+    </div>
+
+    <!--
+        FIRST ACCORDION ITEM
+        The title button and its corresponding body text.
+        "this" in the onclick passes the button element
+        to toggleAccordion() so it can find its parent item.
+    -->
+    <div class="accordion-item">
+
+        <!-- Title button — clicking toggles this item open/closed -->
+        <button class="accordion-btn" onclick="toggleAccordion(this)">
+            2C-B and Psilocybin show largely similar organisational changes within and between networks, with differences in effect being mediated by differences in monoamine interactions.
+            <span class="accordion-arrow">&#9660;</span>
+        </button>
+
+        <!-- Body — hidden by default, revealed when item is open -->
+        <div class="accordion-body">
+            <div class="accordion-body-inner">
+                <p>While both 2C-B and Psilocybin are psychedelics that primarily act on 5-HT2a receptors, there are several differences in how these drugs each act in the brain. One of these differences is that 2C-B may cause lower levels of dysphoria, making it a better therapeutic alternative. Because of this, researchers aimed to map the differences in how drugs affect brain organisation. </p>
+                  <br>
+                <p>To test this, participants were given a dose of 2C-B, Psilocybin and a placebo, each in a different session. They then underwent a resting-state MRI and completed a variety of questionnaires, with various connectivity measures being taken including: static functional connectivity (sFC), global connectivity (gFC), dynamic connectivity variability (dFC). </p>
+                <br>
+               <p>Both drugs reduced within network sFC within the visual and default mode networks while increasing between - network and subcortical to cortical connectivity. Psilocybin produced more extensive increases in between-network sFC, particularly within the default mode and somatomotor networks. Meanwhile, 2C-B showed connectivity increases in transmodal frontoparietal regions. Dynamic connectivity variance was robustly reduced across the whole brain by both drugs, though psilocybin's reductions were spatially more widespread. Measures of entropy increased comparably under both compounds, concentrated in bilateral extrastriate visual cortex and anterior thalamic nuclei, with no significant between-drug differences.</p>
+               <br>
+               <p>Analysis involving PET scan data of receptor density showed that reductions in dFC in both drug conditions strongly predicted by 5-HT2A receptor density, while increases in entropy aligned inversely with 5-HT1A expression. Drug differences in affinity for monoamine transporters were credited as the primary predictor of spatial differences in sFC, with DAT being responsible for differences in sFC between psilocybin and 2C-B, and SERT being responsible for differences in entropy between the two.</p>
+               <br> 
+                <p>Through partial least squares analysis, a latent variable emerged, accounting for 33% of the variance in subjective experience. This latent variable was characterized by decreases in transmodal cortices and increased in unimodal sensorimotor regions. Based on these findings, authors suggest 2C-B engages the same core network-level mechanisms psilocybin, while its secondary monoaminergic interactions being responsible for spatial differences in sFC.</p>
+                
+            </div>
+        </div>
+
+    </div>
+    <!-- END: first accordion item -->
+
+    <div class="accordion-item">
+
+        <!-- Title button — clicking toggles this item open/closed -->
+        <button class="accordion-btn" onclick="toggleAccordion(this)">
+            Analysis of genetic and electrophysiological changes in orbitofrontal cortex cells shows reduced excitatory signalling after a single dose of psilocybin, with this highlighting the orbitofrontal cortex as a potential site of psilocybin’s therapeutic action. 
+            <!-- Arrow rotates via CSS when parent has "open" class -->
+            <span class="accordion-arrow">&#9660;</span>
+        </button>
+
+        <!-- Body — hidden by default, revealed when item is open -->
+        <div class="accordion-body">
+            <div class="accordion-body-inner">
+                <p>The orbitofrontal cortex (OFC) is implied in the pathology of disorders such as obsessive-compulsive disorder and addiction, 2 conditions psilocybin has been an effective treatment of. Despite this, little is known about how psilocybin interacts with the OFC, to produce its therapeutic effects. Because of this, researchers investigated the impact that single dose of psilocybin has on OFC cells.</p>
+                <br>
+                <p>Mice received a single dose of psilocybin at 1 mg/kg or saline. Twenty-four hours later, OFC tissue was collected for gene expression profiling . Separate groups of mice underwent patch-clamp recordings of layer 5 pyramidal neurons, parvalbumin-positive (PV+) interneurons, and somatostatin-positive (SST+) interneurons in OFC slices.</p>
+                <br>
+                <p>The Layer 5 pyramidal cells showed the greatest gene expression, with these largely impacting synapse formation proteins, such as glutamate receptor subunits. Despite this, PV+ and SST+ cells did not show the same change in gene expression, despite these 3 neurons forming a microcircuit, where PV & SST+ interneurons mediate the output of the pyramidal neuron.</p>
+                <br>
+                <p>Electrophysiological results confirmed a similar picture, with reduced firing rates and decreased spontaneous excitatory signals in pyramidal neurons. Which is consistent with the finding of reduced glutamate receptor subunit expression. While SST+ interneurons showed no change synaptic behaviour, PV+ interneurons showed increased excitability. Since PV+ neurons in this microcircuit act to inhibit the activity of pyramidal cells, authors interpreted this as contributing to a collectively reduction in OFC output. </p>
+                <br>
+                <p>In mice pre-treated with 5-HT2A antagonists, researchers noted the complete abolition all these neuronal changes, confirming the changes were 5-HT2A receptor dependent. Additionally, silencing 5-HT2a receptor in pyramidal neurons prevented psilocybin’s downregulation of the glutamate receptor subunits, thus removing the antidepressant effect in these mice. When the same thing was done in PV+ neurons, there was only a partial reduction in antidepressant effect, suggesting layer 5 pyramidal neurons are the primary target mediating the effects of psilocybin in the OFC.</p>
+                
+                
+            </div>
+        </div>
+
+    </div>
 
         <hr class="page-rule" />
 
