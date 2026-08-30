@@ -1128,14 +1128,15 @@
       <!--
         SIDEBAR BUTTON: January 2024
         Shows the January 2024 publication page.
+        -->
       
       <button class="sidebar-btn"
               id="btn-jan2024"
               onclick="showPage('jan2024')">
-        <span class="btn-date">January 2024</span>
-        <span class="btn-meta">Vol. I · Issue 1</span>
+        <span class="btn-date">March 2026</span>
+        <span class="btn-meta">Volume 4</span>
       </button>
-    -->
+    
 
       <!--
         SIDEBAR BUTTON: March 2024
@@ -1257,84 +1258,113 @@
       -->
       <section class="page-section" id="jan2024">
 
-        <!-- Page title — the publication date displayed large -->
-        <h1 class="page-title">January 2024</h1>
-
-        <!-- Metadata line — volume, issue, and additional details -->
-        <p class="page-meta">Volume I &middot; Issue 1 &middot; January 15, 2024</p>
-
-        <!--
-          ACCENT RULE
-          A bold double-ruled line separating the header from
-          the body content — a classic newspaper convention.
-        -->
+         <h1 class="page-title">March 2026</h1>
+        <p class="page-meta">Volume 4 &middot; 2 Papers &middot; </p>
         <hr class="page-rule-accent" />
 
         <!-- ARTICLE CONTENT WRAPPER — holds all article body content -->
-        <div class="content-body">
+        <div class="accordion">
 
-          <!-- Sub-heading for the first article section -->
-          <h2 class="content-heading">Opening the Record</h2>
+  <div class="accordion-item">
 
-          <!--
-            BODY PARAGRAPHS
-            The first paragraph receives the drop-cap treatment
-            via CSS (::first-letter pseudo-element on p:first-of-type).
-            Replace this text with your January 2024 article content.
-          -->
-          <p>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-            Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-            Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
-            nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor
-            in reprehenderit in voluptate velit esse cillum dolore eu fugiat
-            nulla pariatur. Excepteur sint occaecat cupidatat non proident.
-          </p>
+        <!-- Title button — clicking toggles this item open/closed -->
+        <button class="accordion-btn" onclick="toggleAccordion(this)">
+            The inhibition of neural pathways from the medial prefrontal cortex to the amygdala are responsible for psilocybin’s modulatory effect on affective bias in rats.
+            <span class="accordion-arrow">&#9660;</span>
+        </button>
 
-          <p>
-            Sunt in culpa qui officia deserunt mollit anim id est laborum.
-            Pellentesque habitant morbi tristique senectus et netus et malesuada
-            fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae,
-            ultricies eget, tempor sit amet, ante. Donec eu libero sit amet
-            quam egestas semper. Aenean ultricies mi vitae est.
-          </p>
+        <!-- Body — hidden by default, revealed when item is open -->
+        <div class="accordion-body">
+            <div class="accordion-body-inner">
+                <p>Negative affective bias (a tendency to over-weight negative information) is a core mechanism that underlies depressive disorders. Psilocybin has shown substantial potential as an antidepressant agent, yet since its mechanism is poorly understood, researchers investigated the mechanism by which it modulates negative affective bias in rats. </p>
+                <br>
+                <p>Rats were given and affective bias task (ABT). Here, they were trained to associate different digging cues with a food reward while either in a neutral or negative (drug induced) state. Rats were then given psilocybin or 
+                  <span class="dict-link"
+          onmouseenter="showTooltip(event, 'An injection used as a control (often saline)')"
+          onmouseleave="hideTooltip()"
+          onclick="showPage('dictionary'); scrollToEntry('entry-psilocybin')">
+        vehicle
+    </span> infusion to the 
+    <span class="dict-link"
+          onmouseenter="showTooltip(event, 'An area of the brain sitting infront of the limbic system (a group of brain areas involved in emotion)')"
+          onmouseleave="hideTooltip()"
+          onclick="showPage('dictionary'); scrollToEntry('entry-psilocybin')">
+        pre-limbic
+    </span> subregion of the
+    <span class="dict-link"
+          onmouseenter="showTooltip(event, 'Situated in the middle')"
+          onmouseleave="hideTooltip()"
+          onclick="showPage('dictionary'); scrollToEntry('entry-psilocybin')">
+        medial
+    </span>
+     <span class="dict-link"
+          onmouseenter="showTooltip(event, 'The front area of the brain often involved in higher order processing`')"
+          onmouseleave="hideTooltip()"
+          onclick="showPage('dictionary'); scrollToEntry('entry-psilocybin')">
+        prefrontal cortex
+    </span> (PrL). When then given a choice between digging substrates learned in a neutral or negative condition, rats given the vehicle infusion showed a negative affective bias (preference against the substrate learned in a negative condition), however, this effect was significantly reduced in rats given psilocybin infusion.</p>
+                <br>
+               <p>When identifying the mechanism behind psilocybin’s effect, researchers noted a bi-directional effect. Neurons communicating with the 
+                 <span class="dict-link"
+          onmouseenter="showTooltip(event, 'A part of the brain involved in fear processing')"
+          onmouseleave="hideTooltip()"
+          onclick="showPage('dictionary'); scrollToEntry('entry-psilocybin')">
+        amygdala
+    </span> (CA) had their excitatory input suppressed; however, nearby neurons communicating with other regions of the cortex had their inputs strengthened, thus creating somewhat of a redistributing effect. This effect was shown to be dependent on both 
+     <span class="dict-link"
+          onmouseenter="showTooltip(event, 'Both are a type of serotonin receptor')"
+          onmouseleave="hideTooltip()"
+          onclick="showPage('dictionary'); scrollToEntry('entry-psilocybin')">
+        5HT1a and 5HT2a
+    </span> receptor activity, since blocking these receptors with receptor specific 
+   <span class="dict-link"
+          onmouseenter="showTooltip(event, 'A chemicle which binds to a receptor and blocks it')"
+          onmouseleave="hideTooltip()"
+          onclick="showPage('dictionary'); scrollToEntry('entry-psilocybin')">
+        antagonist
+    </span> also blocked the previously seen reduction of excitatory CA projections previously shown.</p>
+               <br> 
+               <p>To demonstrate the causal nature of the CA circuit in modifying negative affective bias, researchers genetically silenced amygdala projecting neurons, allowing for the replication of psilocybin’s effect without having to administer it., This showed the same reduction in effect of negative affective bias confirming the modulation of pathways projecting to the amygdala as central in psilocybin’s mechanism.</p>
 
-          <!--
-            PULL QUOTE
-            A highlighted excerpt from the article, styled
-            with an accent border and italic text. Pull quotes
-            draw the reader's eye and break up long passages.
-          -->
-          <blockquote class="pull-quote">
-            "The record is not merely a list of events — it is the
-            conscience of the age, the mirror held up to what we
-            have done and what we have left undone."
-          </blockquote>
-
-          <p>
-            Mauris in erat justo. Nullam ac urna eu felis dapibus condimentum
-            sit amet a augue. Sed non neque elit. Sed ut imperdiet nisi.
-            Proin condimentum fermentum nunc. Etiam pharetra, erat sed
-            fermentum feugiat, velit mauris egestas quam, ut aliquam
-            massa nisl quis neque. Suspendisse in orci enim.
-          </p>
-
-          <!-- Second sub-heading for a further article section -->
-          <h2 class="content-heading">Looking Ahead</h2>
-
-          <p>
-            Vivamus magna. Cras in mi at felis aliquet congue. Ut a est
-            eget ligula molestie gravida. Curabitur massa. Donec eleifend
-            libero at lobortis mollis. Aenean libero libero, posuere non,
-            iaculis non, ullamcorper vitae, erat. Suspendisse enim turpis,
-            dictum sed, iaculis a, condimentum nec, nisi. Donec euismod
-            molestie dolor. In hac habitasse platea dictumst.
-          </p>
-
+            </div>
         </div>
-        <!-- END: content-body -->
+    </div>
 
-        <!-- A standard horizontal rule to close the article -->
+    <!--
+        FIRST ACCORDION ITEM
+        The title button and its corresponding body text.
+        "this" in the onclick passes the button element
+        to toggleAccordion() so it can find its parent item.
+    -->
+    <div class="accordion-item">
+
+        <!-- Title button — clicking toggles this item open/closed -->
+        <button class="accordion-btn" onclick="toggleAccordion(this)">
+            Researchers showed that psilocybin treatment in mice selectively reduced auditory cortex activity when mice were presented with tones that were paired with negative stimuli.
+            <span class="accordion-arrow">&#9660;</span>
+        </button>
+
+        <!-- Body — hidden by default, revealed when item is open -->
+        <div class="accordion-body">
+            <div class="accordion-body-inner">
+                <p>Mice were presented with varying tones, (4, 8 and 13 hz), with 4 and 13hz tones being associated with either water (positive stimuli), or air puffs (negative stimuli). Neurons in the auditory cortex of these mice were then imaged both before and after psilocybin / saline treatment in order to examine how psilocybin effected the activity patterns of auditory neurons.</p>
+                  <br>
+                <p>Across both psilocybin and saline groups, there was a uniform reduction auditory neuron responsiveness to tones, with researchers attributing this as a result of the injection procedure itself. When imaging auditory neurons response to different stimuli instead of tones, the psilocybin treated mice showed a reduction in responsiveness specifically to air-puffs but not the water stimulus.</p>
+                  <br>
+                  <p>To investigate psilocybin’s effect on tone responsiveness without the injection confound, the design was modified so that post-injection imaging would be done the same day, 1 day and 8 days after psilocybin administration. Instead of using both water and air puff stimuli, tones were only associated with the negative air-puff, with 1 tone being paired before the psilocybin treatment, and a different tone being used for pairing immediately after treatment during the window in which psilocybin was active</p>
+                  <br>
+                  <p>Mice given psilocybin showed a larger reduction in neuron signalling specifically towards the tone paired before the psilocybin treatment, with the reduction in activity persisting at 8 days. Additionally, this reduction in spiking was specific to the tone which had been consolidated for a week prior, with this reduction effect not being extended to the latter tone.</p>
+                  <br>
+                  <p>Based on these findings researchers suggest that psilocybin is not simply dampening auditory signalling, but instead preferentially dampening well consolidated aversive sensory representations.</p>
+                  
+            </div>
+        </div>
+
+    </div>
+    <!-- END: first accordion item -->
+
+    
+
         <hr class="page-rule" />
 
       </section>
@@ -1351,8 +1381,8 @@
       -->
       <section class="page-section" id="mar2024">
 
-        <h1 class="page-title">January 2026</h1>
-        <p class="page-meta">Volume 2 &middot; 4 Papers &middot; </p>
+        <h1 class="page-title">February 2026</h1>
+        <p class="page-meta">Volume 3 &middot; 4 Papers &middot; </p>
         <hr class="page-rule-accent" />
 
         <!--
@@ -1762,7 +1792,7 @@
         <h1 class="page-title">Dictionary</h1>
 
         <!-- Metadata sub-heading -->
-        <p class="page-meta">Reference Glossary &middot; All Volumes</p>
+        <p class="page-meta">Here you can find definitions of more 'technical' terms you may find across papers we talk about!</p>
 
         <!-- Accent rule separating header from content -->
         <hr class="page-rule-accent" />
