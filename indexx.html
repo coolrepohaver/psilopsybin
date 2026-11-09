@@ -1,0 +1,2629 @@
+<!DOCTYPE html>
+<!--
+  ============================================================
+  MULTI-PAGE PUBLICATION WEBSITE
+  ============================================================
+  This is a single HTML file that simulates a multi-page
+  website using JavaScript to show/hide different "pages"
+  (also called "sections" or "views"). No actual page reloads
+  happen — instead, JavaScript dynamically toggles visibility.
+
+  STRUCTURE OVERVIEW:
+  ┌─────────────────────────────────────────────────────────┐
+  │  TOP NAVIGATION BAR  (links to Home + Dictionary)       │
+  ├───────────────┬─────────────────────────────────────────┤
+  │               │                                         │
+  │  LEFT SIDEBAR │         MAIN CONTENT AREA               │
+  │  (publication │  (displays the currently active page)   │
+  │   date links) │                                         │
+  │               │                                         │
+  └───────────────┴─────────────────────────────────────────┘
+
+  PAGES INCLUDED:
+    1. Introduction (blank / placeholder)
+    2. Publication: January 2024
+    3. Publication: March 2024
+    4. Publication: June 2024
+    5. Publication: September 2024
+    6. Dictionary (accessible via top menu only)
+
+  AESTHETIC DIRECTION:
+    "Editorial Print Archive" — inspired by academic journals
+    and newspaper archives. Dark ink tones, serif typography,
+    ruled lines, and a warm off-white paper texture give the
+    site a timeless, scholarly feel.
+  ============================================================
+-->
+<html lang="en">
+
+<head>
+  <!--
+    ──────────────────────────────────────────────
+    HEAD SECTION
+    Contains meta tags, the page title, Google
+    Fonts imports, and ALL CSS styles.
+    ──────────────────────────────────────────────
+  -->
+
+  <!-- Standard character encoding — must be first in <head> -->
+  <meta charset="UTF-8" />
+
+  <!-- Makes the site mobile-responsive by controlling the
+       viewport width and initial zoom level -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- The title shown in the browser tab / bookmark bar -->
+  <title>Psilopsybin - newsletter archive</title>
+
+  <!--
+    GOOGLE FONTS IMPORT
+    We load two carefully chosen typefaces:
+      • "Playfair Display" — a high-contrast serif with strong
+        editorial character. Used for headings, titles, and
+        the site logo. Feels like a newspaper masthead.
+      • "EB Garamond" — a classical old-style serif body font.
+        Extremely readable at small sizes; feels scholarly.
+    Both fonts are hosted by Google's CDN (no install needed).
+  -->
+ <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Courgette&display=swap" rel="stylesheet">
+  />
+
+  <style>
+    /*
+    ════════════════════════════════════════════════════════════
+    CSS CUSTOM PROPERTIES (DESIGN TOKENS)
+    ════════════════════════════════════════════════════════════
+    Defining all colors, fonts, and spacing as CSS variables
+    on the :root element means we can change the entire look
+    of the site by editing just this block. Think of these as
+    the "design tokens" — the single source of truth.
+    */
+    :root {
+      /* --- COLOR PALETTE ---
+         Inspired by aged paper, India ink, and archival red. */
+      --color-paper:       #f5f0e8;   /* Warm off-white background, like old paper        */
+      --color-ink:         #1a1510;   /* Near-black for body text — slightly warm, not harsh */
+      --color-ink-muted:   #75654f;   /* Softer ink for secondary/metadata text            */
+      --color-rule:        #c8bfaa;   /* Horizontal rules and borders — aged paper tone    */
+      --color-accent:      #8b1a1a;   /* Deep archival red for active states and highlights */
+      --color-accent-soft: #f0e8e0;   /* Very pale tint for sidebar hover backgrounds      */
+      --color-sidebar-bg:  #ede8de;   /* Slightly darker than paper — differentiates sidebar */
+      --color-nav-bg:      #1a1510;   /* Dark ink for the top navigation bar              */
+      --color-nav-text:    #f5f0e8;   /* Light paper color for nav text                   */
+
+      /* --- TYPOGRAPHY ---
+         Using our two imported Google Fonts */
+      --font-display:  'Playfair Display', Georgia, serif; /* For titles, headings, logo  */
+      --font-body:     'EB Garamond', Georgia, serif;      /* For all body/paragraph text */
+
+      /* --- LAYOUT DIMENSIONS ---
+         Fixed widths allow precise, predictable layout */
+      --sidebar-width: 220px;   /* Width of the left sidebar panel          */
+      --nav-height:    58px;    /* Height of the top navigation bar         */
+
+      /* --- SPACING SCALE ---
+         Consistent spacing units throughout the site */
+      --space-xs:  6px;
+      --space-sm:  12px;
+      --space-md:  24px;
+      --space-lg:  48px;
+      --space-xl:  80px;
+    }
+
+    /*
+    ────────────────────────────────────────────────────────────
+    CSS RESET & BASE STYLES
+    ────────────────────────────────────────────────────────────
+    Remove browser default inconsistencies so our layout
+    behaves exactly as intended across Chrome, Firefox, Safari.
+    */
+    *, *::before, *::after {
+      /* "Border-box" sizing: padding and border are included
+         in an element's declared width/height. This prevents
+         elements from unexpectedly overflowing their containers. */
+      box-sizing: border-box;
+      /* Remove all default margins so we control spacing
+         explicitly throughout the stylesheet */
+      margin: 0;
+      /* Remove all default padding for the same reason */
+      padding: 0;
+    }
+
+    /* Apply our base styles to the whole document */
+    html {
+      /* Smooth scrolling for any anchor links */
+      scroll-behavior: smooth;
+    }
+
+    body {
+      /* Our warm paper background color for the whole page */
+      background-color: var(--color-paper);
+      /* Our scholarly serif font for all body text */
+      font-family: var(--font-body);
+      /* Comfortable reading line-height — 1.7 gives generous
+         whitespace between lines of text */
+      line-height: 1.7;
+      /* Warm near-black ink color for all text */
+      color: var(--color-ink);
+      /* Slight font size bump — 18px base makes body text feel
+         more editorial and comfortable to read */
+      font-size: 18px;
+      /* Prevent a horizontal scrollbar if anything slightly
+         overflows horizontally */
+      overflow-x: hidden;
+    }
+
+    /*
+    ════════════════════════════════════════════════════════════
+    TOP NAVIGATION BAR
+    ════════════════════════════════════════════════════════════
+    The nav bar sits fixed at the very top of the viewport.
+    It stays visible even as the user scrolls. It contains:
+      • A site logo / masthead on the left
+      • Navigation links on the right (Home, Dictionary)
+    */
+
+    /* The <nav> element itself — the full-width dark bar */
+    .top-nav {
+      /* Fixed positioning: stays at the top of the screen
+         even when the page scrolls */
+      position: fixed;
+      /* Anchor it to the very top of the viewport */
+      top: 0;
+      left: 0;
+      /* Span the full width of the viewport */
+      width: 100%;
+      /* Use our pre-defined nav height */
+      height: var(--nav-height);
+      /* Dark ink background — creates strong contrast with
+         the light paper content area below */
+      background-color: var(--color-nav-bg);
+      /* Ink-colored text reversed to light paper tone */
+      color: var(--color-nav-text);
+      /* Flexbox makes it easy to space out the logo and links */
+      display: flex;
+      align-items: center;             /* Vertically center content */
+      justify-content: space-between;  /* Logo left, links right */
+      /* Horizontal padding keeps content from touching the edges */
+      padding: 0 var(--space-md);
+      /* z-index ensures the nav bar always sits ON TOP of all
+         other page content — nothing should overlap it */
+      z-index: 1000;
+      /* A subtle bottom border in the accent red adds a fine
+         editorial line beneath the nav */
+      border-bottom: 2px solid var(--color-accent);
+    }
+
+    /* The site's masthead/logo text inside the nav */
+    .nav-logo {
+      /* Display font for the logo — prominent and editorial */
+      font-family: var(--font-display);
+      /* Large, commanding size for the publication name */
+      font-size: 1.4rem;
+      font-weight: 900;
+      /* Light paper tone so it reads against the dark nav */
+      color: var(--color-nav-text);
+      /* Remove underline — we're styling this as a logo, not a link */
+      text-decoration: none;
+      /* Generous letter-spacing gives it a "masthead" quality */
+      letter-spacing: 0.08em;
+      /* All caps reinforces the editorial newspaper masthead style */
+      text-transform: uppercase;
+      /* Smooth color transition on hover */
+      transition: color 0.2s ease;
+    }
+
+    /* When the user hovers the logo, it glows accent red */
+    .nav-logo:hover {
+      color: var(--color-accent);
+    }
+
+    /* The container holding the right-side nav links */
+    .nav-links {
+      /* Flex row with a gap between each link */
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      /* Remove the default list styling (bullets, padding) */
+      list-style: none;
+    }
+
+    /* Each individual nav link item */
+    .nav-links a {
+      /* Paper tone so text is visible on dark background */
+      color: var(--color-nav-text);
+      /* Remove underline decoration */
+      text-decoration: none;
+      /* Small caps styling via font variant */
+      font-variant: small-caps;
+      /* Slightly spaced letters for an elegant, archival feel */
+      letter-spacing: 0.06em;
+      font-size: 0.95rem;
+      /* Relative positioning enables the underline pseudo-element below */
+      position: relative;
+      /* Smooth color transition on hover */
+      transition: color 0.2s ease;
+      /* A little vertical padding increases click target size */
+      padding-bottom: 2px;
+    }
+
+    /* Decorative underline effect using a pseudo-element.
+       This creates a thin accent-red line that slides in from
+       the left when the user hovers over a nav link. */
+    .nav-links a::after {
+      content: '';                          /* Required for pseudo-elements */
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;                             /* Starts with zero width (hidden)  */
+      height: 1px;
+      background-color: var(--color-accent);
+      /* The width transitions smoothly from 0 to 100%
+         creating a "drawing in" underline effect */
+      transition: width 0.25s ease;
+    }
+
+    /* When hovered: change text color and draw the underline */
+    .nav-links a:hover {
+      color: var(--color-accent);
+    }
+    .nav-links a:hover::after {
+      width: 100%; /* Underline slides in from left to right */
+    }
+
+    /* Special "active" state styling — used by JavaScript to
+       mark the currently visible page's nav link */
+    .nav-links a.active {
+      color: var(--color-accent);
+    }
+    .nav-links a.active::after {
+      width: 100%; /* Active page always shows the full underline */
+    }
+
+    /*
+    ════════════════════════════════════════════════════════════
+    MAIN LAYOUT WRAPPER
+    ════════════════════════════════════════════════════════════
+    The layout below the nav consists of:
+      LEFT SIDEBAR | MAIN CONTENT
+    We use CSS Flexbox to achieve this two-column layout.
+    */
+
+    /* The outer wrapper that contains both the sidebar and content */
+    .layout {
+      /* Start layout BELOW the fixed nav bar by adding padding-top
+         equal to the nav height. Without this, the nav would
+         overlap the top of our content. */
+      padding-top: var(--nav-height);
+      /* Flex row: sidebar on the left, content on the right */
+      display: flex;
+      /* Fill the full viewport height (minus nav height is handled
+         by the min-height trick below) */
+      min-height: 100vh;
+    }
+
+    /*
+    ════════════════════════════════════════════════════════════
+    LEFT SIDEBAR
+    ════════════════════════════════════════════════════════════
+    Contains the publication-date navigation buttons.
+    Each button navigates to a different dated "page".
+    The sidebar is fixed in place — it doesn't scroll with the
+    main content area.
+    */
+
+    .sidebar {
+      /* Fixed width from our CSS variable */
+      width: var(--sidebar-width);
+      /* Subtract nav height so sidebar fills only the space below it */
+      min-height: calc(100vh - var(--nav-height));
+      /* Slightly darker than the paper background */
+      background-color: var(--color-sidebar-bg);
+      /* A right-hand border separating sidebar from content */
+      border-right: 1px solid var(--color-rule);
+      /* Padding inside the sidebar for breathing room */
+      padding: var(--space-lg) var(--space-sm);
+      /* Sticky positioning: the sidebar stays visible while
+         the main content area scrolls past it */
+      position: sticky;
+      /* Stick to the top of the viewport (offset by nav height) */
+      top: var(--nav-height);
+      /* Must explicitly set height to allow sticky to work
+         properly when content overflows */
+      height: calc(100vh - var(--nav-height));
+      /* Allow the sidebar itself to scroll if many entries */
+      overflow-y: auto;
+      /* Don't allow the sidebar to shrink or grow */
+      flex-shrink: 0;
+    }
+
+    /* The label at the top of the sidebar — "EDITIONS" */
+    .sidebar-heading {
+      /* Display font, small caps feel */
+      font-family: var(--font-display);
+      font-size: 0.65rem;
+      /* All capitals — very typographic, archival feel */
+      text-transform: uppercase;
+      /* Wide letter spacing for a refined "label" treatment */
+      letter-spacing: 0.18em;
+      /* Muted ink tone — secondary element, not primary navigation */
+      color: var(--color-ink-muted);
+      /* Space below before the buttons begin */
+      margin-bottom: var(--space-md);
+      /* A thin horizontal rule under the heading */
+      padding-bottom: var(--space-xs);
+      border-bottom: 1px solid var(--color-rule);
+    }
+
+    /* Each individual navigation button in the sidebar */
+    .sidebar-btn {
+      /* Make the button fill the full sidebar width */
+      display: block;
+      width: 100%;
+      /* Consistent internal padding for comfortable click target */
+      padding: var(--space-sm) var(--space-sm);
+      /* Remove all default browser button styling */
+      background: none;
+      border: none;
+      /* Left-align the text inside the button */
+      text-align: left;
+      /* Use our body serif font (not the default system button font) */
+      font-family: var(--font-body);
+      /* Ink-muted color for inactive state — not too prominent */
+      color: var(--color-ink-muted);
+      /* Pointer cursor on hover so it feels clickable */
+      cursor: pointer;
+      /* Smooth transitions for background and color changes */
+      transition: background 0.2s ease, color 0.2s ease,
+                  border-left-color 0.2s ease;
+      /* A left border that changes color when active */
+      border-left: 3px solid transparent;
+      /* Small gap from the left to separate the border from text */
+      padding-left: var(--space-sm);
+      /* Rounded corners on the right side only */
+      border-radius: 0 4px 4px 0;
+      /* Relative position for potential pseudo-elements */
+      position: relative;
+      /* A little bottom margin between each button */
+      margin-bottom: var(--space-xs);
+    }
+
+    /* When hovering a sidebar button, show a background tint
+       and shift the left border to a soft rule color */
+    .sidebar-btn:hover {
+      background-color: var(--color-accent-soft);
+      color: var(--color-ink);
+      border-left-color: var(--color-rule);
+    }
+
+    /* The ACTIVE sidebar button (the currently visible page).
+       JavaScript adds the "active" class to whichever button
+       corresponds to the currently shown page. */
+    .sidebar-btn.active {
+      /* Strong accent red left border marks the active item */
+      border-left-color: var(--color-accent);
+      /* Slightly elevated background to visually group the active item */
+      background-color: var(--color-accent-soft);
+      /* Full ink color — highest contrast, most prominent */
+      color: var(--color-ink);
+      font-weight: 500;
+    }
+
+    /* The date label inside each sidebar button (e.g. "January 2024") */
+    .sidebar-btn .btn-date {
+      /* Display font for the date — dignified, editorial */
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      /* Block-level so it sits on its own line */
+      display: block;
+      /* Normal (non-italic) weight */
+      font-weight: 400;
+    }
+
+    /* A small descriptor text below the date (e.g. "Vol. 1") */
+    .sidebar-btn .btn-meta {
+      /* Tiny supplementary text */
+      font-size: 0.75rem;
+      /* Muted — secondary information */
+      color: var(--color-ink-muted);
+      /* Slight italic for gentle contrast with the date above */
+      font-style: italic;
+      /* Nudge it slightly up so it feels part of the date label */
+      display: block;
+      margin-top: 1px;
+    }
+
+    /* Override btn-meta color in the active state so it
+       remains readable against the slightly different background */
+    .sidebar-btn.active .btn-meta {
+      color: var(--color-ink-muted);
+    }
+
+    /*
+    ════════════════════════════════════════════════════════════
+    MAIN CONTENT AREA
+    ════════════════════════════════════════════════════════════
+    The right-hand column where pages are displayed.
+    Pages are shown/hidden by JavaScript — only one is visible
+    at a time.
+    */
+
+    .main-content {
+      /* Takes up all remaining horizontal space after the sidebar */
+      flex: 1;
+      /* Generous padding on all sides for comfortable reading */
+      padding: var(--space-xl) var(--space-xl);
+      /* Limit maximum reading width — long lines are hard to read;
+         ~700px is a comfortable measure for body text */
+      max-width: 100%;
+    }
+
+    /*
+    ════════════════════════════════════════════════════════════
+    PAGE SECTIONS
+    ════════════════════════════════════════════════════════════
+    Each "page" of the site is a <section> element.
+    JavaScript shows exactly one at a time, hiding the rest.
+    */
+
+    /* All page sections start hidden */
+    .page-section {
+      /* Hidden by default — JavaScript will make one visible */
+      display: none;
+      /* A subtle fade-in animation when a section becomes visible */
+      animation: fadeIn 0.4s ease;
+    }
+
+    /* The currently active/visible page section */
+    .page-section.active {
+      /* Block display makes it visible */
+      display: block;
+    }
+
+    /* Keyframe animation: sections fade in gently when shown */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        /* Also slides up slightly from below for a gentle reveal */
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /*
+    ════════════════════════════════════════════════════════════
+    TYPOGRAPHY — HEADINGS, BODY TEXT, METADATA
+    ════════════════════════════════════════════════════════════
+    */
+
+    /* The main page title (e.g. "January 2024") */
+    .page-title {
+      /* Large display serif — commands attention */
+      font-family: var(--font-display);
+      font-size: 3rem;
+      font-weight: 900;
+      /* Tight line height for large headings — prevents
+         too much white space between lines in a multi-line title */
+      line-height: 1.1;
+      /* Space below before the metadata / rule line */
+      margin-bottom: var(--space-sm);
+      color: var(--color-ink);
+      /* Italic variant for elegance — Playfair's italics
+         are particularly beautiful and calligraphic */
+      font-style: italic;
+    }
+
+    /* Metadata line below the title (e.g. "Volume I · Issue 1") */
+    .page-meta {
+      /* Small, muted, uppercase spaced label */
+      font-size: 0.8rem;
+      color: var(--color-ink-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      /* Gap before the horizontal rule */
+      margin-bottom: var(--space-md);
+    }
+
+    /* A decorative horizontal rule separating the header from body */
+    .page-rule {
+      /* Zero-height border — only the border-top is visible */
+      border: none;
+      border-top: 2px solid var(--color-rule);
+      /* Space above and below the rule */
+      margin: var(--space-md) 0 var(--space-lg) 0;
+    }
+
+    /* A thicker accent rule — used directly under page titles */
+    .page-rule-accent {
+      border: none;
+      /* Double border trick: solid line + shadow creates a
+         "double rule" effect (thin red, then gap, then thin rule) */
+      border-top: 3px double var(--color-ink);
+      margin: var(--space-xs) 0 var(--space-md) 0;
+    }
+
+    /* Article / content sub-headings */
+    .content-heading {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-top: var(--space-lg);
+      margin-bottom: var(--space-sm);
+      color: var(--color-ink);
+    }
+
+    /* Body paragraphs */
+    .content-body p {
+      /* Comfortable reading size */
+      font-size: 1.05rem;
+      /* Generous line height for readability */
+      line-height: 1.85;
+      /* Space between paragraphs */
+      margin-bottom: var(--space-md);
+      color: var(--color-ink);
+    }
+
+    /* First paragraph drop cap — a classical editorial treatment.
+       The ::first-letter pseudo-element targets the very first
+       character in a paragraph. */
+    .content-body p:first-of-type::first-letter {
+      /* Scale it up large — the classic "drop cap" size */
+      font-size: 4.5rem;
+      /* Float it left so subsequent text wraps around it */
+      float: left;
+      /* Pull it up so the top aligns with the text cap height */
+      line-height: 0.7;
+      /* A little spacing to the right keeps it from touching text */
+      margin-right: 6px;
+      /* Nudge it down just slightly for better optical alignment */
+      margin-top: 8px;
+      /* Display font and bold weight make it highly decorative */
+      font-family: var(--font-display);
+      font-weight: 900;
+      /* Accent red makes the drop cap a focal point */
+      color: var(--color-accent);
+    }
+
+    /* Pull quote styling — a large, highlighted excerpt */
+    .pull-quote {
+      /* Left border in accent red marks it as a special callout */
+      border-left: 4px solid var(--color-accent);
+      /* Internal padding separates the text from the border */
+      padding: var(--space-sm) var(--space-md);
+      /* Italic serif text for the quotation */
+      font-style: italic;
+      font-size: 1.2rem;
+      line-height: 1.6;
+      /* Muted color — it's a secondary/supplementary element */
+      color: var(--color-ink-muted);
+      /* Vertical space above and below the pull quote */
+      margin: var(--space-lg) 0;
+      /* Subtle background helps it stand out from the page */
+      background-color: var(--color-accent-soft);
+    }
+
+    /*
+    ════════════════════════════════════════════════════════════
+    INTRODUCTION PAGE — SPECIAL STYLES
+    ════════════════════════════════════════════════════════════
+    The intro page has a centered masthead layout rather than
+    the standard left-aligned article layout.
+    */
+
+    /* The centered masthead on the intro page */
+    .intro-masthead {
+      text-align: center;
+      padding: var(--space-xl) 0;
+      /* A bottom border to close off the masthead block */
+      border-bottom: 3px double var(--color-rule);
+      margin-bottom: var(--space-xl);
+    }
+
+    /* "THE ARCHIVE" — the big masthead publication name */
+    .intro-masthead-name {
+      font-family: var(--font-display);
+      /* Very large — dominant element on the page */
+      font-size: 5rem;
+      font-weight: 900;
+      color: var(--color-ink);
+      /* No line height gap needed for a single line */
+      line-height: 1;
+      /* Wide spaced — it should feel like a newspaper name */
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: var(--space-xs);
+    }
+
+    /* Tagline text under the masthead name */
+    .intro-masthead-tagline {
+      font-family: var(--font-body);
+      font-style: italic;
+      font-size: 1.1rem;
+      color: var(--color-ink-muted);
+      letter-spacing: 0.02em;
+      margin-bottom: var(--space-md);
+    }
+
+    /* The horizontal rule in the masthead — thin and elegant */
+    .intro-masthead-rule {
+      border: none;
+      border-top: 1px solid var(--color-ink);
+      /* Limit rule width — centered — for a refined look */
+      width: 60%;
+      margin: var(--space-sm) auto;
+    }
+
+    /* Placeholder text displayed on the blank intro page */
+    .intro-placeholder {
+      text-align: center;
+      color: var(--color-ink-muted);
+      font-style: italic;
+      font-size: 1rem;
+      padding: var(--space-xl) 0;
+      /* A dashed border suggests this area is awaiting content */
+      border: 1px dashed var(--color-rule);
+      border-radius: 4px;
+    }
+
+    /*
+    ════════════════════════════════════════════════════════════
+    DICTIONARY PAGE — SPECIAL STYLES
+    ════════════════════════════════════════════════════════════
+    The dictionary page lists terms alphabetically with their
+    definitions. A classic encyclopedic/reference layout.
+    */
+
+    /* Container for all dictionary entries */
+    .dictionary-list {
+      /* Remove bullet points and default padding from the list */
+      list-style: none;
+    }
+
+    /* Each individual dictionary entry (term + definition) */
+    .dict-entry {
+      /* Space between entries */
+      padding: var(--space-md) 0;
+      /* A light horizontal rule between entries */
+      border-bottom: 1px solid var(--color-rule);
+    }
+
+    /* Remove the bottom border from the very last entry */
+    .dict-entry:last-child {
+      border-bottom: none;
+    }
+
+    /* The term being defined */
+    .dict-term {
+      /* Display font, bold — the headword in a dictionary */
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--color-ink);
+      /* Space between term and the part-of-speech label */
+      margin-bottom: 2px;
+    }
+
+    /* Part of speech label (e.g. "noun", "verb") */
+    .dict-pos {
+      /* Small, italic, muted — like in a real dictionary */
+      font-size: 0.82rem;
+      color: var(--color-accent);
+      font-style: italic;
+      /* A little left margin separates it from the term */
+      margin-left: var(--space-xs);
+      font-family: var(--font-body);
+      font-weight: 400;
+    }
+
+    /* The definition text below the term */
+    .dict-definition {
+      font-size: 1rem;
+      line-height: 1.7;
+      color: var(--color-ink);
+      /* Indent the definition slightly from the left */
+      padding-left: var(--space-md);
+      margin-top: 4px;
+    }
+
+    /* An example usage sentence within a definition */
+    .dict-example {
+      display: block;
+      font-style: italic;
+      color: var(--color-ink-muted);
+      font-size: 0.95rem;
+      margin-top: 4px;
+    }
+
+    /* Alphabetical section dividers (A, B, C...) */
+    .dict-section-letter {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--color-accent);
+      /* Space above and below each letter divider */
+      margin-top: var(--space-lg);
+      margin-bottom: var(--space-sm);
+      /* Underline the letter with a short accent rule */
+      padding-bottom: var(--space-xs);
+      border-bottom: 2px solid var(--color-accent);
+      /* Only as wide as the letter character itself */
+      display: inline-block;
+      /* Add some padding-right so the border extends
+         a bit beyond the character */
+      padding-right: var(--space-md);
+    }
+
+    /*
+    ════════════════════════════════════════════════════════════
+    SCROLLBAR STYLING
+    ════════════════════════════════════════════════════════════
+    Custom scrollbar for webkit browsers (Chrome, Safari, Edge).
+    Matches our paper-and-ink aesthetic.
+    */
+
+    /* The scrollbar track (the background channel) */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--color-sidebar-bg);
+    }
+    /* The scrollbar thumb (the draggable indicator) */
+    ::-webkit-scrollbar-thumb {
+      background: var(--color-rule);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--color-ink-muted);
+    }
+
+    /*
+    ════════════════════════════════════════════════════════════
+    RESPONSIVE ADJUSTMENTS
+    ════════════════════════════════════════════════════════════
+    On small screens (mobile/tablet), we collapse the sidebar
+    into a horizontal scrollable strip above the main content,
+    and reduce font sizes slightly.
+    */
+
+    @media (max-width: 700px) {
+      /* Sidebar goes from vertical column to horizontal strip */
+      .layout {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        /* Full width across the top */
+        width: 100%;
+        /* Fixed height for the horizontal strip */
+        min-height: auto;
+        height: auto;
+        /* Sticky at the top (below the nav bar) */
+        position: sticky;
+        top: var(--nav-height);
+        /* Horizontal scrolling if many buttons */
+        overflow-x: auto;
+        overflow-y: hidden;
+        /* Horizontal layout for the buttons */
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding: var(--space-sm);
+        gap: var(--space-xs);
+        /* No right border — now it's a bottom border */
+        border-right: none;
+        border-bottom: 1px solid var(--color-rule);
+        /* Slightly elevated shadow so it floats over content */
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      }
+
+      /* On mobile, hide the sidebar heading — no room */
+      .sidebar-heading {
+        display: none;
+      }
+
+      /* Sidebar buttons become compact horizontal chips */
+      .sidebar-btn {
+        /* Don't shrink — force them to be full width */
+        flex-shrink: 0;
+        width: auto;
+        /* Remove the left border styling (it was for vertical layout) */
+        border-left: none;
+        /* Tight rounding for the chip look */
+        border-radius: 4px;
+        margin-bottom: 0;
+        padding: 6px 12px;
+        border: 1px solid var(--color-rule);
+      }
+
+      /* Active button gets a filled accent style */
+      .sidebar-btn.active {
+        background-color: var(--color-accent);
+        color: var(--color-paper);
+        border-color: var(--color-accent);
+      }
+      .sidebar-btn.active .btn-meta {
+        color: rgba(245, 240, 232, 0.7);
+      }
+
+      /* Reduce main content padding on mobile */
+      .main-content {
+        padding: var(--space-md);
+      }
+
+      /* Smaller title on mobile */
+      .page-title {
+        font-size: 2rem;
+      }
+
+      /* Smaller masthead on mobile */
+      .intro-masthead-name {
+        font-size: 2.8rem;
+      }
+    }
+
+    .link-button {
+    display: inline-block;
+    padding: var(--space-sm) var(--space-md);
+    background-color: var(--color-accent);
+    color: var(--color-paper);
+    text-decoration: none;
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.link-button:hover {
+    background-color: var(--color-ink);
+}
+
+/*
+    ACCORDION ITEM
+    Each accordion item contains one title and one body.
+    A bottom border separates each item from the next.
+*/
+.accordion-item {
+    border-bottom: 1px solid var(--color-rule);
+}
+
+/*
+    ACCORDION TITLE BUTTON
+    The clickable heading. Spans the full width and sits
+    centered. An arrow indicator on the right rotates
+    when the item is open to signal state to the user.
+*/
+.accordion-btn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    background: none;
+    border: none;
+    padding: var(--space-md) 0;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-ink);
+    cursor: pointer;
+    text-align: left;
+    transition: color 0.2s ease;
+}
+
+.accordion-btn:hover {
+    color: var(--color-accent);
+}
+
+/*
+    ARROW INDICATOR
+    A small chevron on the right side of the title button.
+    Rotates 180 degrees when the item is open.
+*/
+.accordion-arrow {
+    font-size: 0.9rem;
+    color: var(--color-ink-muted);
+    transition: transform 0.3s ease;
+    /* Prevent the arrow from shrinking */
+    flex-shrink: 0;
+    margin-left: var(--space-md);
+}
+
+/*
+    OPEN STATE — rotate the arrow
+    JavaScript adds "open" to the accordion-item when active.
+*/
+.accordion-item.open .accordion-arrow {
+    transform: rotate(180deg);
+}
+
+/*
+    OPEN STATE — title color change
+*/
+.accordion-item.open .accordion-btn {
+    color: var(--color-accent);
+}
+
+/*
+    ACCORDION BODY
+    Hidden by default. Uses max-height transition for a
+    smooth expand/collapse animation rather than display:none
+    which cannot be animated.
+*/
+.accordion-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+}
+
+/*
+    OPEN STATE — reveal the body
+    A large max-height value accommodates any amount of text.
+    The transition animates it smoothly open.
+*/
+.accordion-item.open .accordion-body {
+    max-height: 2000px;
+}
+
+/*
+    ACCORDION BODY INNER
+    Inner padding wrapper. Padding cannot be animated directly
+    on accordion-body because it would affect the collapsed
+    height calculation, so it lives on a child element instead.
+*/
+.accordion-body-inner {
+    padding: var(--space-sm) 0 var(--space-lg) 0;
+}
+
+.accordion-body-inner {
+    padding: var(--space-sm) 15% var(--space-lg) 15%;
+}
+
+/*
+    DICTIONARY LINKED WORD
+    Any word wrapped in a span with this class will appear
+    blue and underlined, signalling it is clickable.
+*/
+.dict-link {
+    color: #695e51;
+    text-decoration: underline;
+    cursor: pointer;
+    position: relative;
+}
+
+/*
+    TOOLTIP BOX
+    A single floating div reused for every hovered word.
+    Fixed positioning means it always appears near the cursor
+    regardless of scroll position.
+*/
+.dict-tooltip {
+    display: none;
+    position: fixed;
+    background-color: var(--color-paper);
+    border: 1px solid var(--color-rule);
+    border-left: 3px solid #2a5db0;
+    padding: var(--space-sm) var(--space-md);
+    max-width: 280px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--color-ink);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    border-radius: 3px;
+    z-index: 2000;
+    pointer-events: none;
+}
+
+  </style>
+</head>
+
+<body>
+
+  <!--
+    ══════════════════════════════════════════════════════════════
+    TOP NAVIGATION BAR
+    ══════════════════════════════════════════════════════════════
+    This bar is fixed to the top of the viewport at all times.
+    It contains two elements:
+      1. The site logo (clicking it goes to the intro page)
+      2. A list of navigation links (Home → intro, Dictionary)
+
+    Each link has an `onclick` attribute that calls the
+    `showPage()` JavaScript function (defined at the bottom
+    of this file) with the ID of the section to display.
+    ══════════════════════════════════════════════════════════════
+  -->
+  <nav class="top-nav">
+
+    <!--
+      SITE LOGO
+      Clicking the logo always returns the user to the intro/home page.
+      We use an <a> tag styled as a logo rather than a real hyperlink —
+      `href="#"` prevents page reload while still being semantic HTML.
+    -->
+    <a href="#" class="nav-logo" onclick="showPage('intro'); return false;">
+      PSILOPSYBIN
+    </a>
+
+    <!--
+      TOP NAVIGATION LINKS
+      An unordered list <ul> containing list items <li> with
+      anchor links <a> inside each.
+      - "Home" → goes to the Introduction page
+      - "Dictionary" → goes to the Dictionary reference page
+      The `id` attributes on these links allow JavaScript to
+      toggle the "active" class for styling purposes.
+    -->
+    <ul class="nav-links">
+      <li>
+        <a href="#"
+           id="nav-home"
+           onclick="showPage('intro'); return false;">
+          Home
+        </a>
+      </li>
+      <li>
+        <a href="#"
+           id="nav-dictionary"
+           onclick="showPage('dictionary'); return false;">
+          Dictionary
+        </a>
+      </li>
+    </ul>
+
+  </nav>
+  <!-- END: top navigation bar -->
+
+
+  <!--
+    ══════════════════════════════════════════════════════════════
+    MAIN LAYOUT CONTAINER
+    ══════════════════════════════════════════════════════════════
+    This div uses CSS Flexbox (set in the stylesheet above) to
+    create the two-column layout:
+      - The left sidebar (publication date buttons)
+      - The right main content area (page sections)
+    ══════════════════════════════════════════════════════════════
+  -->
+  <div class="layout">
+
+
+    <!--
+      ════════════════════════════════════════════════════════════
+      LEFT SIDEBAR
+      ════════════════════════════════════════════════════════════
+      Contains a heading and a series of <button> elements.
+      Each button represents one published edition (page).
+      Buttons call showPage() with their target section's ID.
+      JavaScript adds/removes the "active" class to the
+      currently selected button.
+      ════════════════════════════════════════════════════════════
+    -->
+    <aside class="sidebar">
+
+      <!-- A small label heading above the button list -->
+      <div class="sidebar-heading">Editions</div>
+
+      <!--
+        SIDEBAR BUTTON: Introduction
+        This button shows the blank introduction/home page.
+        It starts with the "active" class since the intro is
+        shown by default on page load.
+      -->
+      <button class="sidebar-btn active"
+              id="btn-intro"
+              onclick="showPage('intro')">
+        <!-- The main date/title label -->
+        <span class="btn-date">Home</span>
+        <!-- Secondary metadata under the date -->
+        <span class="btn-meta"></span>
+      </button>
+
+      <button class="sidebar-btn"
+              id="btn-jan2024"
+              onclick="showPage('Jul26')">
+        <span class="btn-date">July 2026</span>
+        <span class="btn-meta">Volume 7</span>
+      </button>
+
+      <button class="sidebar-btn"
+              id="btn-jan2024"
+              onclick="showPage('Jun26')">
+        <span class="btn-date">June 2026</span>
+        <span class="btn-meta">Volume 6</span>
+      </button>
+
+      <button class="sidebar-btn"
+              id="btn-jan2024"
+              onclick="showPage('May26')">
+        <span class="btn-date">May 2026</span>
+        <span class="btn-meta">No volume :(</span>
+      </button>
+
+      <button class="sidebar-btn"
+              id="btn-jan2024"
+              onclick="showPage('Apr26')">
+        <span class="btn-date">April 2026</span>
+        <span class="btn-meta">Volume 5</span>
+      </button>
+      <!--
+        SIDEBAR BUTTON: January 2024
+        Shows the January 2024 publication page.
+        -->
+      
+      <button class="sidebar-btn"
+              id="btn-jan2024"
+              onclick="showPage('Mar26')">
+        <span class="btn-date">March 2026</span>
+        <span class="btn-meta">Volume 4</span>
+      </button>
+    
+
+      <!--
+        SIDEBAR BUTTON: March 2024
+        Shows the March 2024 publication page.
+    -->
+      <button class="sidebar-btn"
+              id="btn-mar2024"
+              onclick="showPage('Feb26')">
+        <span class="btn-date">February 2026
+        <span class="btn-meta">Volume 3</span>
+      </button>
+    
+
+      <!--
+        SIDEBAR BUTTON: June 2024
+        Shows the June 2024 publication page.
+      -->
+      <button class="sidebar-btn"
+              id="btn-jun2024"
+              onclick="showPage('Jan26')">
+        <span class="btn-date">January 2026</span>
+        <span class="btn-meta">Volume 2</span>
+      </button>
+
+      <!--
+        SIDEBAR BUTTON: September 2024
+        Shows the September 2024 publication page.
+      -->
+      <button class="sidebar-btn"
+              id="btn-sep2024"
+              onclick="showPage('Dec25')">
+        <span class="btn-date">December 2025</span>
+        <span class="btn-meta">Volume 1</span>
+      </button>
+
+    </aside>
+    <!-- END: left sidebar -->
+
+
+    <!--
+      ════════════════════════════════════════════════════════════
+      MAIN CONTENT AREA
+      ════════════════════════════════════════════════════════════
+      Each page of the site lives here as a <section> element.
+      All sections have `class="page-section"` which makes them
+      hidden by default (display: none in CSS).
+      JavaScript shows one section at a time by adding the
+      "active" class to it (display: block).
+      ════════════════════════════════════════════════════════════
+    -->
+    <main class="main-content">
+
+
+      <!--
+        ──────────────────────────────────────────────────────────
+        PAGE 1: INTRODUCTION (blank placeholder)
+        ──────────────────────────────────────────────────────────
+        This is the default landing page. It displays a large
+        typographic masthead but the main content area is left
+        intentionally blank — ready for your content.
+
+        The "active" class is applied here by default so this
+        page is visible when the site first loads.
+        ──────────────────────────────────────────────────────────
+      -->
+      <section class="page-section active" id="intro">
+
+        <!--
+          MASTHEAD BLOCK
+          A centered typographic display at the top of the page.
+          Styled like the front page of a broadsheet newspaper.
+          Contains: publication name, a decorative rule, and a tagline.
+        -->
+        <div class="intro-masthead">
+          <!-- The big, bold publication name -->
+          <div class="intro-masthead-name">PSILO-PSY-BIN</div>
+          <!-- A fine decorative rule under the name -->
+          <hr class="intro-masthead-rule" />
+          <!-- Italic tagline — feel free to change this text -->
+          <div class="intro-masthead-tagline">
+            Monthly updates on the latest research on psychedelics
+          </div>
+          <!-- Another thin rule to close the masthead block -->
+          <hr class="intro-masthead-rule" />
+        </div>
+        <!-- END: masthead block -->
+
+        
+        <div class="intro-placeholder">
+          <p>
+            Our monthly newsletter is currently undergoing some work, until then here are some recent papers:
+            </p>
+            <p>
+            <a href="https://scholar.google.com/scholar?hl=en&as_sdt=0,5&q=psilocybin&scisbd=1" class="link-button">Click me</a>
+          </p>
+        </div>
+      
+        <!-- END: blank placeholder -->
+
+      </section>
+
+<section class="page-section" id="Jul26">
+
+         <h1 class="page-title">July 2026</h1>
+        <p class="page-meta">Volume 7 &middot; 3 Papers &middot; </p>
+        <hr class="page-rule-accent" />
+
+        <!-- ARTICLE CONTENT WRAPPER — holds all article body content -->
+        <div class="accordion">
+
+  <div class="accordion-item">
+
+        <!-- Title button — clicking toggles this item open/closed -->
+        <button class="accordion-btn" onclick="toggleAccordion(this)">
+            α2-Adrenergic receptor modulates 5-HT2A-mediated behavioral effects of MDMA and psilocybin in mice including the intensity of head twitch response behaviours
+            <span class="accordion-arrow">&#9660;</span>
+        </button>
+
+        <!-- Body — hidden by default, revealed when item is open -->
+        <div class="accordion-body">
+            <div class="accordion-body-inner">
+                <p>While both psilocybin and MDMA are psychedelics, MDMA belongs to the class of entactogens, therefore working by releasing serotonin (5HT) as well as noradrenaline (NE) and Dopamine (DA). Psilocybin on the other hand, interacts with 5HT2a receptors to produce psychedelic experiences in humans and head twitch responses (HTR) in rodents. However, MDMA does not produce HTR to the same extent. Given this, researchers proposed that the NE release produced by MDMA acts on a2 adrenergic receptors (a2R) to suppress the 5HT2a mediated behaviour of HTR’s</p>
+                <br>
+                <p>Behaviourally, psilocybin and 2C-B (both serotonergic psychedelics) produced strong HTR, while MDMA, methylone, and MBDB (all entactogens), were statistically indistinguishable from saline, with MDMA and methylone reducing HTR at higher doses.</p>
+                <br>
+                <p>When examining chemical changes in the brain, researchers found. all entactogens raised both 5HT and NE levels in the mPFC, while psilocybin changed neither. To test the effect of specifically NE on HTR behaviour, researchers gave mice reboxetine to blunt MDMA’s NE release. When mice were given MDMA + reboxetine, there was a large increase in HTR. When reboxetine + psilocybin were given together, there was an increase in NE compared to just psilocybin treatment, which produced a reduced amount of HTR in mice. Together these findings suggest NE is responsible for blocking HTR behaviour in normal MDMA treatment. Additional tests using an a2R agonist reveal that this effect depended specifically on the activation of the a2R.</p>
+                <br>
+                <p>Researchers also found that the activation of a2 adrenergic receptors did not inhibit psilocybin’s expected antidepressant effect. This is important since authors suggested that increases in NE to reduce HTR behaviours present the possibility of reducing unnecessary side effects of psychedelics that may disrupt its ability to be used as a therapeutic tool.</p>
+                <br>
+                <p>DOI: https://doi.org/10.64898/2026.07.10.737743 </p>
+                
+               
+            </div>
+        </div>
+    </div>
+
+    <!--
+        FIRST ACCORDION ITEM
+        The title button and its corresponding body text.
+        "this" in the onclick passes the button element
+        to toggleAccordion() so it can find its parent item.
+    -->
+    <div class="accordion-item">
+
+        <!-- Title button — clicking toggles this item open/closed -->
+        <button class="accordion-btn" onclick="toggleAccordion(this)">
+           Analysis of distinct spatiotemporal structure of neuronal avalanches during psilocybin treatment reveals a shift in activity to more stable avalanche dynamics rather than broad increases in entropy
+            <span class="accordion-arrow">&#9660;</span>
+        </button>
+
+        <!-- Body — hidden by default, revealed when item is open -->
+        <div class="accordion-body">
+            <div class="accordion-body-inner">
+                <p>Neural avalanches are brief bursts of coordinated brain activity, that are traditionally looked at in terms their size and duration, however treating avalanches in this way hides what they actually look like. Whether recurring shapes exist among avalanches has not been systematically studied, mainly because avalanches vary in duration and spatial extent, making them hard to compare. The authors argue that starting from discrete events rather than breaking down a whole recording into brain wide patterns avoids blurring brief episodes of coordinated activity with the unstructured activity between them.</p>
+                <br>
+                <p>This is relevant to the activity of psychedelics, since they are often thought to increase entropy in the brain, meaning neural activity is more random and less predictable. Therefore, by tracking recurring avalanche patterns, the authors are measuring the ways in which psilocybin supresses or encourages these patterns.</p>
+                <br>
+                <p>The authors built a distance measure that compares avalanches of different lengths and spatial layouts. This was then applied to EEG recording at baseline and 75 to 120 minutes after psilocybin treatment. Hierarchical clustering grouped the avalanches into 12 recurring patterns. These patterns were then searched for in the continuous, unthresholded data, and runs where the same pattern recurred at least twice in immediate succession were classified as either oscillating or stable. </p>
+                <br>
+                <p>Within the 12 patterns that formed, some visibly moved across the scalp (travelling), while others kept a fixed layout (standing). Clusters did not differ significantly in how often they arose between baseline and psilocybin sessions, suggesting the patterns themselves appear to exist in both states. Many patterns were mirrored across the two hemispheres, with each pair sharing the same temporal behaviour. </p>
+                <br>
+                <p>Patterns with visible spatial movement (0, 1, 2, 4, 5, 10) were almost exclusively oscillating, whereas patterns with fixed layouts (7, 9, 11) were almost exclusively stable. Critically, under psilocybin, the proportion of oscillating sequences fell from 85.7% to 65.2%, while the stable proportion rose from 14.3% to 34.8%, thus creating a shift towards more stable pattern of activity. The authors identify two contributors to this. Firstly, oscillating travelling clusters were much less active under psilocybin, with clusters 2 and 5 contributing most. Secondly, cluster 8 changed its own from 31% stable at baseline to 71% stable under psilocybin. </p>
+                <br>
+                <p>These findings suggest that psilocybin does not increase entropy in the brain. It instead selectively reduces rhythmic, alpha range travelling patterns across the back of the head, shifting the balance toward spatially fixed ones. The authors present this as a more nuanced account of how neural dynamics change. </p>
+                <br>
+                <p>DOI: https://doi.org/10.64898/2026.07.10.737743 </p>
+                
+                  
+            </div>
+        </div>
+
+    </div>
+    <!-- END: first accordion item -->
+
+    <div class="accordion-item">
+
+        <!-- Title button — clicking toggles this item open/closed -->
+        <button class="accordion-btn" onclick="toggleAccordion(this)">
+           Psilocybin promotes more varied thinking in mice during states of uncertaintly, with disting shifts neuronal dynamics in the mPFC being responsible for reweighting leared information
+            <span class="accordion-arrow">&#9660;</span>
+        </button>
+
+        <!-- Body — hidden by default, revealed when item is open -->
+        <div class="accordion-body">
+            <div class="accordion-body-inner">
+                <p>Previous work has suggested that psilocybin may be able to promote cognitive flexibility, however little is known about what neural changes may underlie this change in cognition. To investigate this, researchers recorded single neurons in the rat medial prefrontal cortex (mPFC) during a probabilistic choice task. </p>
+                <br>
+                <p>8 Rats were given a probabilistic choice task, where reward likelihood shifted across blocks. This produced a high uncertainty block with 50/50 reward likelihood, as well as 2 certain blocks with 80/20 and 20/80 reward likelihoods. Rats were treated with psilocybin 15 minutes before testing, and results were compared to their own behaviour from a previous session.</p>
+                <br>
+                <p>In rats given psilocybin, they found that although strategies largely stayed the same, there was an increase in choice variability in high uncertainty trials but not low uncertainty ones. Researchers suggest this may reflect an increase in adaptive exploration. To examine this effect further, computational models we tested with the winning model having 4 relevant parameters. 2 were responsible for modulating update rates following rewarded and unrewarded outcomes, a bias parameter capturing value independent preference for one side, and an inverse temperature parameter capturing the degree to which choices were driven by learned values.</p>
+                <br>
+                <p>Psilocybin did not affect the temperature parameter but moderately decreased the bias parameter. More importantly, psilocybin increased the learning rate for rewarded outcomes and strongly decreased the learning rate for unrewarded outcomes. This suggests psilocybin modulates decision making behaviour by reweighting how rewarded versus unrewarded outcomes update choice values, as well as reducing value independent bias.</p>
+                <br>
+                <p>When analysing neural behaviour 5 clusters were identified. 2 clusters of neurons showed increases in activity associated with reward, with distinct temporal patterns emerging between them. Type 1 showed reward-related increases immediately at action and type 2 later during the outcome. Psilocybin increased the proportion of type 1 but not 2 neurons in the population. Another 2 clusters of neurons showed the same thing but for unrewarded outcomes with similar distinct temporal patterns. In unrewarded clusters psilocybin selectively reduced representation of the Type I neurons, suggesting psilocybin enhances representation of rewarded actions and attenuates representation of unrewarded actions.</p>
+                <br>
+                <p>Overall, researchers suggest psilocybin reweights learning outcomes, favouring learning from rewards, with this behavioural change being mirrored by the behaviour of neurons in the mPFC. They note this is consistent with evidence suggesting psilocybin relaxes priors, with decreased choice related coding allowing a “freer” landscape for choice under uncertainty.</p>
+                <br>
+                <p>DOI: https://doi.org/10.1038/s41386-026-02501-3</p>
+                
+                
+                
+                  
+            </div>
+        </div>
+
+    </div>
+
+        <hr class="page-rule" />
+
+      </section>
+
+      <section class="page-section" id="Jun26">
+
+         <h1 class="page-title">June 2026</h1>
+        <p class="page-meta">Volume 6 &middot; 3 Papers &middot; </p>
+        <hr class="page-rule-accent" />
+
+        <!-- ARTICLE CONTENT WRAPPER — holds all article body content -->
+        <div class="accordion">
+
+  <div class="accordion-item">
+
+        <!-- Title button — clicking toggles this item open/closed -->
+        <button class="accordion-btn" onclick="toggleAccordion(this)">
+            Psychedelics disrupt hierarchical cortical propagations in the default mode network of humans and mice
+            <span class="accordion-arrow">&#9660;</span>
+        </button>
+
+        <!-- Body — hidden by default, revealed when item is open -->
+        <div class="accordion-body">
+            <div class="accordion-body-inner">
+                <p>Psychedelics are traditionally thought to alter activity in the default mode network (DMN) with the DMN at the top of the cortex’s hierarchy. Some evidence suggests psychedelics amplify bottom-up activity flowing into the DMN by relaxing top-down priors, while other findings suggest they weaken bottom-up activity. </p>
+                <br>
+                <p>Authors here argue this inconsistency is unresolved since most imaging studies treat activity as fixed in space rather than tracking how it moves. Additionally, cortical signalling is mostly local, but many studies compare distant region pairs. Researchers therefore decided to use an optical flow technique, this tracks frame to frame movement of activity across the cortical surface to measure the magnitude and direction of activity movement within the DMN. </p>
+                <br>
+                <p>9 drug to placebo comparisons across 4 studies were pooled, including the use of LSD, MDMA and psilocybin which in this paper are considered together under the umbrella of ‘psychedelics. </p>
+                <br>
+                <p>Psychedelics reduced the magnitude of propagations in the DMN in every comparison, while Diazepam and dexmedetomidine instead increased magnitude. Bottom-up directionality was also reduced by MDMA, LSD. Diazepam reduced bottom-up flow less than LSD, while dexmedetomidine increased it. Effects were strongest in the posterior DMN, and much stronger in mice.</p>
+                <br>
+                <p>Based on these findings, authors suggest psychedelics reduce bottom-up propagation into the DMN consistently across compounds. This supports theories that suggest psychedelics shift the balance toward top-down processing, rather than amplifying bottom-up flow.</p>
+                <br>
+                <p>Because reduced bottom-up flow tracked negative experiences, they speculate that over disrupting a normal balance may cause distress. More speculatively, they suggest this may help ruminative depression, where bottom-up activity may be excessive, while posing risk for people prone to psychosis.</p>
+                <br>
+                <p>DOI: https://doi.org/10.1073/pnas.2522000123</p>
+                
+               
+            </div>
+        </div>
+    </div>
+
+    <!--
+        FIRST ACCORDION ITEM
+        The title button and its corresponding body text.
+        "this" in the onclick passes the button element
+        to toggleAccordion() so it can find its parent item.
+    -->
+    <div class="accordion-item">
+
+        <!-- Title button — clicking toggles this item open/closed -->
+        <button class="accordion-btn" onclick="toggleAccordion(this)">
+           EEG microstate dynamics during psilocybin intoxication relate to acute experience and persisting psychological changes
+            <span class="accordion-arrow">&#9660;</span>
+        </button>
+
+        <!-- Body — hidden by default, revealed when item is open -->
+        <div class="accordion-body">
+            <div class="accordion-body-inner">
+                <p>While studies that use EEG measurements to investigate psychedelics typically examine changes in spectral features or signal complexity, minimal attention has been given to microstate analysis approaches within psychedelic literature. 4 different microstates appear to account for the majority of variance in resting state EEG; however, altered distribution and transition patterns, and reduced duration of these microstates have been reported across a variety of psychiatric conditions. </p>
+                <br>
+                <p>Given the significant changes in experience during psychedelic experiences, researchers hypothesised that there would be modulation in microstates present during the acute phase of psilocybin but also examined whether individual differences in psychedelic microstates were able to predict long term psychological changes a month after the experience.</p>
+                <br>
+                <p>The most predictable finding was further evidence that psilocybin increases diversity in neural dynamics. Increases in global field power peaks line up with existing literature explaining psychedelic experiences as at least in part being caused by increases in entropy across the brain.</p>
+                <br>
+                <p>Since microstate analysis in psychedelic research is fairly new, researchers chose to test cross-validation measurements used to determine the appropriate number of microstates. Interestingly, they found that 3 microstates more appropriately explained their data and so continued their analysis using both traditional 4 microstate analysis as well as 3 microstate analysis.</p>
+                <br>
+                <p>The strongest finding was a significant reduction in microstate lifespan under psilocybin, particularly during peak intoxication. This suggests that large scale brain states become less temporally stable, with the brain transitioning between different configurations more rapidly. Correspondingly, the frequency of microstate occurrence increased during peak intoxication, supporting the interpretation that psilocybin accelerates the rate at which the brain moves between states. These changes broadly followed the time course of psilocin concentration and subjective intoxication.</p>
+                <br>
+                <p>Despite these temporal changes, microstate coverage remained largely unchanged, suggesting that psilocybin alters the length and transition frequency of these states, rather than changing which states are accessible. Interestingly, individual differences in microstate dynamics were associated with the intensity of subjective psychedelic experiences, as well as positive psychological changes reported 28 days later. Less stable microstate characterisation (shorter with more frequent change) was associated with more intense acute experiences and greater positive persisting effects. It should be noted these relationships remain exploratory and do not establish a causal relationship between neural dynamics and subsequent psychological change.</p>
+                <br>
+                <p>DOI: https://doi.org/10.64898/2026.06.09.731183 </p>
+                
+                  
+            </div>
+        </div>
+
+    </div>
+    <!-- END: first accordion item -->
+
+    <div class="accordion-item">
+
+        <!-- Title button — clicking toggles this item open/closed -->
+        <button class="accordion-btn" onclick="toggleAccordion(this)">
+           Psilocybin reduces fear memory and restores neuroplasticity in the hippocampus and medial prefrontal cortex
+            <span class="accordion-arrow">&#9660;</span>
+        </button>
+
+        <!-- Body — hidden by default, revealed when item is open -->
+        <div class="accordion-body">
+            <div class="accordion-body-inner">
+                <p>PTSD is often associated with dysfunction in the hippocampus and medial prefrontal cortex (mPFC). Prior research has implicated psilocybin as increasing neuroplasticity in different regions in the brain as part of its antidepressant effect, with other research showing psilocybin can help fear extinction. Given this, researchers were interested in examining how long psilocybin’s effects on cued fear memory last, while examining what neural changes may underlie this. The authors hypothesized that psilocybin reduces fear memory by promoting neuroplasticity in these two regions.</p>
+                <br>
+                <p>Male mice were split into three groups of 16 where 2 groups were fear conditioned either with or without psilocybin, and another control group that received no fear conditioning. 2 days before psilocybin or saline administration, mice in fear condition groups had 5 sound tones paired mild foot shock. Responses to the fear tones were measured 1 and 6 days after psilocybin / saline administration in a new testing chamber, and 7 days later in the original chamber. Brain tissue was later analysed to examine differences in neuroplasticity across groups.</p>
+                <br>
+                <p>As expected, fear conditioned mice froze far more than controls, with psilocybin reducing freezing on day 1, 6 and 7 compared with mice given saline. Mice exposed to fear conditioning showed reduced dendritic branching and spine density (both markers of reduced neuroplasticity) in the hippocampus and mPFC, with psilocybin reversing this effect in both regions. Fear conditioning also lowered BDNF, mTOR, GluR1 and synapsin-1 levels in both regions, with psilocybin again raised all of them back. Finally, fear conditioning reduced DCX-positive cells in the dentate gyrus, with psilocybin restoring them to near control levels. </p>
+                <br>
+                <p>Authors interoperated all these findings as an indicator that a single dose of psilocybin can rapidly and continuously reduce fear memory for up 7 days. This was associated with restored structural plasticity, activation of the BDNF-mTOR pathway, increased plasticity related proteins, and greater neurogenesis. The authors suggest that psilocybin reduces fear memory at least in part by restoring losses in neuroplasticity, with psilocybin having potential for treating PTSD and other disorders involving fear memory.</p>
+                <br>
+                <p>DOI: https://doi.org/10.1177/02698811261453819</p>
+                
+                
+                  
+            </div>
+        </div>
+
+    </div>
+
+        <hr class="page-rule" />
+
+      </section>
+
+
+<section class="page-section" id="May26">
+
+         <h1 class="page-title">March 2026</h1>
+        <p class="page-meta"> &middot;  &middot; </p>
+        <hr class="page-rule-accent" />
+
+        <!-- ARTICLE CONTENT WRAPPER — holds all article body content -->
+        <div class="accordion">
+
+  <div class="accordion-item">
+
+        <!-- Title button — clicking toggles this item open/closed -->
+        <button class="accordion-btn" onclick="toggleAccordion(this)">
+            We took a break in the month of May, so unfortunately there is no issue available :(
+        </button>   
+    </div>
+      
+
+      </section>
+
+
+      <section class="page-section" id="Apr26">
+
+         <h1 class="page-title">April 2026</h1>
+        <p class="page-meta">Volume 5 &middot; 2 Papers &middot; </p>
+        <hr class="page-rule-accent" />
+
+        <!-- ARTICLE CONTENT WRAPPER — holds all article body content -->
+        <div class="accordion">
+
+  <div class="accordion-item">
+
+        <!-- Title button — clicking toggles this item open/closed -->
+        <button class="accordion-btn" onclick="toggleAccordion(this)">
+            The astrocytes in the prefrontal cortex contribute to the rapid antidepressant-like effects of psilocybin
+            <span class="accordion-arrow">&#9660;</span>
+        </button>
+
+        <!-- Body — hidden by default, revealed when item is open -->
+        <div class="accordion-body">
+            <div class="accordion-body-inner">
+                <p>Researchers investigated astrocytes’ contribution to the rapid antidepressant effects of psilocybin using a chronic restraint stress (CRS) mouse model. Psilocybin results were also compared to ketamine, (a drug with concrete rapid acting antidepressant effects). Mice were subjected to 28 days of restraint stress in order to develop depressive symptoms. A single dose of psilocybin or ketamine was able to reverse these effects within 1 to 3 days, thus confirming both drugs' rapid antidepressant efficacy. </p>
+                <br>
+                <p>To investigate the involvement of astrocyte function in this effect, researchers measured GFAP (a biomarker of astrocytes) and C3 (a marker of neurotoxic A1 reactive astrocytes) in the prefrontal cortex. After the SRC procedure, mice showed reduced GFAP markers and increased C3 expression. This suggested both astrocyte loss as well as a shift toward harmful A1 astrocyte phenotype. Following psilocybin and ketamine treatment, both of these changes in biomarker levels were restored indicating healthier astrocyte behaviour after mice received these treatments.</p>
+                <br>
+               <p>In cultured astrocytes, psilocin treatment showed an increase in astrocyte proliferation and enhanced release of ATP, lactate and glutamate, all gliotransmitters linked to antidepressant activity. When astrocytes were converted into the toxic A1 phenotype using inflammatory cytokines, they showed impaired gliotransmitter release and mitochondrial dysfunction. After psilocin treatment, these deficits were reversed, producing reduced C3 expression and restoring ATP, lactate, and glutamate release as well as healthier mitochondrial activity.</p>
+               <br> 
+               <p>Researchers depleted roughly half of the astrocytes in the prelimbic prefrontal cortex of unstressed mice with the use of a genetically modified virus. This partial depletion alone did not produce depressive or anxious behaviour, but blunted psilocybin's anti-anxiety and antidepressant effects across multiple testing days. Thus suggesting astrocytes are functionally necessary for psilocybin's rapid action.</p>
+               <br>
+               <p>DOI: https://doi.org/10.1016/j.pnpbp.2026.111698</p>
+               
+            </div>
+        </div>
+    </div>
+
+    <!--
+        FIRST ACCORDION ITEM
+        The title button and its corresponding body text.
+        "this" in the onclick passes the button element
+        to toggleAccordion() so it can find its parent item.
+    -->
+    <div class="accordion-item">
+
+        <!-- Title button — clicking toggles this item open/closed -->
+        <button class="accordion-btn" onclick="toggleAccordion(this)">
+            Researchers identify 5HT1a receptors as a key sight on SST neurons which contribute to the sustained duration of psilocybin’s long term behavioural effects
+            <span class="accordion-arrow">&#9660;</span>
+        </button>
+
+        <!-- Body — hidden by default, revealed when item is open -->
+        <div class="accordion-body">
+            <div class="accordion-body-inner">
+                <p>Due to the growing body of research demonstrating Psilocybin’s antidepressant potential, researchers chose to investigate psilocybin’s modulatory effect on 3 major types of GABAergic neurons in the mouse medial frontal cortex. These were somatostatin (SST), parvalbumin and vasoactive intestinal peptide (VIP) interneurons.</p>
+                  <br>
+                <p>As expected, mice given saline did not show any change in interneuron firing activity. However, mice given psilocybin showed different cell specific changes. SST neurons decreased firing rates, where as PV neurons showed the opposite and increased firing rates. The majority of recorded SST and PV interneurons located in were layer 5, meaning psilocybin shows an opposing effect on 2 different GABA interneuron populations.</p>
+                  <br>
+                  <p>Researchers were particularly interested in the mechanism behind the reduction in SST interneuron firing. This is because this reduction in signalling should create a disinhibitory effect which could be potential mechanism explaining increases in plasticity associated with psilocybin treatment. </p>
+                  <br>
+                  <p>To investigate the possible mechanism behind the reduction in SST signalling, researchers first examined changes in VIP interneurons, since VIP interneurons are known to supress the activity of SST interneurons. When imaging VIP interneurons, researchers found no difference in activity, before and after psilocybin was administered thus ruling out the potential for this indirect mechanism.</p>
+                  <br>
+                  <p>Researchers then investigated the relevance of 5HT1a receptors, since these are known to be expressed on SST interneurons, and are known to dampen the excitability of neurons. To test this, researchers blocked the 5HT1a receptor pharmacologically, and separately genetically knocked out this receptor from SST interneurons. In both cases, psilocybin no longer had a suppressive effect on SST signalling thus confirming that 5HT1a receptors are responsible for psilocybin’s effect on SST interneuron signal suppression.</p>
+                  <br>
+                  <p>Behaviourally, mice without 5HT1a receptors on SST interneurons did not show the expected antidepressant like effects that would typically be expected after psilocybin administration. They did however show head twitch responses, which is a classic marker of an acute psychedelic experience. This suggests the reduction in 5HT1a mediated SST interneuron signalling is likely responsible for specifically longer-term antidepressant effects of psilocybin.</p>
+                  <br>
+                  <p>DOI: https://doi.org/10.64898/2026.04.16.718963 </p>
+                  
+            </div>
+        </div>
+
+    </div>
+    <!-- END: first accordion item -->
+
+    
+
+        <hr class="page-rule" />
+
+      </section>
+      
+
+      <section class="page-section" id="Mar26">
+
+         <h1 class="page-title">March 2026</h1>
+        <p class="page-meta">Volume 4 &middot; 2 Papers &middot; </p>
+        <hr class="page-rule-accent" />
+
+        <!-- ARTICLE CONTENT WRAPPER — holds all article body content -->
+        <div class="accordion">
+
+  <div class="accordion-item">
+
+        <!-- Title button — clicking toggles this item open/closed -->
+        <button class="accordion-btn" onclick="toggleAccordion(this)">
+            The inhibition of neural pathways from the medial prefrontal cortex to the amygdala are responsible for psilocybin’s modulatory effect on affective bias in rats.
+            <span class="accordion-arrow">&#9660;</span>
+        </button>
+
+        <!-- Body — hidden by default, revealed when item is open -->
+        <div class="accordion-body">
+            <div class="accordion-body-inner">
+                <p>Negative affective bias (a tendency to over-weight negative information) is a core mechanism that underlies depressive disorders. Psilocybin has shown substantial potential as an antidepressant agent, yet since its mechanism is poorly understood, researchers investigated the mechanism by which it modulates negative affective bias in rats. </p>
+                <br>
+                <p>Rats were given and affective bias task (ABT). Here, they were trained to associate different digging cues with a food reward while either in a neutral or negative (drug induced) state. Rats were then given psilocybin or 
+                  <span class="dict-link"
+          onmouseenter="showTooltip(event, 'An injection used as a control (often saline)')"
+          onmouseleave="hideTooltip()"
+          onclick="showPage('dictionary'); scrollToEntry('entry-psilocybin')">
+        vehicle
+    </span> infusion to the 
+    <span class="dict-link"
+          onmouseenter="showTooltip(event, 'An area of the brain sitting infront of the limbic system (a group of brain areas involved in emotion)')"
+          onmouseleave="hideTooltip()"
+          onclick="showPage('dictionary'); scrollToEntry('entry-psilocybin')">
+        pre-limbic
+    </span> subregion of the
+    <span class="dict-link"
+          onmouseenter="showTooltip(event, 'Situated in the middle')"
+          onmouseleave="hideTooltip()"
+          onclick="showPage('dictionary'); scrollToEntry('entry-psilocybin')">
+        medial
+    </span>
+     <span class="dict-link"
+          onmouseenter="showTooltip(event, 'The front area of the brain often involved in higher order processing`')"
+          onmouseleave="hideTooltip()"
+          onclick="showPage('dictionary'); scrollToEntry('entry-psilocybin')">
+        prefrontal cortex
+    </span> (PrL). When then given a choice between digging substrates learned in a neutral or negative condition, rats given the vehicle infusion showed a negative affective bias (preference against the substrate learned in a negative condition), however, this effect was significantly reduced in rats given psilocybin infusion.</p>
+                <br>
+               <p>When identifying the mechanism behind psilocybin’s effect, researchers noted a bi-directional effect. Neurons communicating with the 
+                 <span class="dict-link"
+          onmouseenter="showTooltip(event, 'A part of the brain involved in fear processing')"
+          onmouseleave="hideTooltip()"
+          onclick="showPage('dictionary'); scrollToEntry('entry-psilocybin')">
+        amygdala
+    </span> (CA) had their excitatory input suppressed; however, nearby neurons communicating with other regions of the cortex had their inputs strengthened, thus creating somewhat of a redistributing effect. This effect was shown to be dependent on both 
+     <span class="dict-link"
+          onmouseenter="showTooltip(event, 'Both are a type of serotonin receptor')"
+          onmouseleave="hideTooltip()"
+          onclick="showPage('dictionary'); scrollToEntry('entry-psilocybin')">
+        5HT1a and 5HT2a
+    </span> receptor activity, since blocking these receptors with receptor specific 
+   <span class="dict-link"
+          onmouseenter="showTooltip(event, 'A chemicle which binds to a receptor and blocks it')"
+          onmouseleave="hideTooltip()"
+          onclick="showPage('dictionary'); scrollToEntry('entry-psilocybin')">
+        antagonist
+    </span> also blocked the previously seen reduction of excitatory CA projections previously shown.</p>
+               <br> 
+               <p>To demonstrate the causal nature of the CA circuit in modifying negative affective bias, researchers genetically silenced amygdala projecting neurons, allowing for the replication of psilocybin’s effect without having to administer it., This showed the same reduction in effect of negative affective bias confirming the modulation of pathways projecting to the amygdala as central in psilocybin’s mechanism.</p>
+
+            </div>
+        </div>
+    </div>
+
+    <!--
+        FIRST ACCORDION ITEM
+        The title button and its corresponding body text.
+        "this" in the onclick passes the button element
+        to toggleAccordion() so it can find its parent item.
+    -->
+    <div class="accordion-item">
+
+        <!-- Title button — clicking toggles this item open/closed -->
+        <button class="accordion-btn" onclick="toggleAccordion(this)">
+            Researchers showed that psilocybin treatment in mice selectively reduced auditory cortex activity when mice were presented with tones that were paired with negative stimuli.
+            <span class="accordion-arrow">&#9660;</span>
+        </button>
+
+        <!-- Body — hidden by default, revealed when item is open -->
+        <div class="accordion-body">
+            <div class="accordion-body-inner">
+                <p>Mice were presented with varying tones, (4, 8 and 13 hz), with 4 and 13hz tones being associated with either water (positive stimuli), or air puffs (negative stimuli). Neurons in the auditory cortex of these mice were then imaged both before and after psilocybin / saline treatment in order to examine how psilocybin effected the activity patterns of auditory neurons.</p>
+                  <br>
+                <p>Across both psilocybin and saline groups, there was a uniform reduction auditory neuron responsiveness to tones, with researchers attributing this as a result of the injection procedure itself. When imaging auditory neurons response to different stimuli instead of tones, the psilocybin treated mice showed a reduction in responsiveness specifically to air-puffs but not the water stimulus.</p>
+                  <br>
+                  <p>To investigate psilocybin’s effect on tone responsiveness without the injection confound, the design was modified so that post-injection imaging would be done the same day, 1 day and 8 days after psilocybin administration. Instead of using both water and air puff stimuli, tones were only associated with the negative air-puff, with 1 tone being paired before the psilocybin treatment, and a different tone being used for pairing immediately after treatment during the window in which psilocybin was active</p>
+                  <br>
+                  <p>Mice given psilocybin showed a larger reduction in neuron signalling specifically towards the tone paired before the psilocybin treatment, with the reduction in activity persisting at 8 days. Additionally, this reduction in spiking was specific to the tone which had been consolidated for a week prior, with this reduction effect not being extended to the latter tone.</p>
+                  <br>
+                  <p>Based on these findings researchers suggest that psilocybin is not simply dampening auditory signalling, but instead preferentially dampening well consolidated aversive sensory representations.</p>
+                  
+            </div>
+        </div>
+
+    </div>
+    <!-- END: first accordion item -->
+
+    
+
+        <hr class="page-rule" />
+
+      </section>
+      <!-- END: page-section #jan2024 -->
+
+
+      <!--
+        ──────────────────────────────────────────────────────────
+        PAGE 3: MARCH 2024
+        ──────────────────────────────────────────────────────────
+        Second publication entry. Same structure as January 2024.
+        Replace sample text with your March 2024 content.
+        ──────────────────────────────────────────────────────────
+      -->
+      <section class="page-section" id="Feb26">
+
+        <h1 class="page-title">February 2026</h1>
+        <p class="page-meta">Volume 3 &middot; 4 Papers &middot; </p>
+        <hr class="page-rule-accent" />
+
+        <!--
+    ACCORDION CONTAINER
+    Each accordion-item holds one title and one body.
+    Items start closed by default. Add class "open" to
+    any item to have it expanded on page load.
+-->
+<div class="accordion">
+
+  <div class="accordion-item">
+
+        <!-- Title button — clicking toggles this item open/closed -->
+        <button class="accordion-btn" onclick="toggleAccordion(this)">
+            Scientists demonstrate Psilocybin’s ability to improve novel object recognition in intellectual disability rats through the modulation of BDNF pathways, independent of psilocybin 5HT2a agonism.
+            <!-- Arrow rotates via CSS when parent has "open" class -->
+            <span class="accordion-arrow">&#9660;</span>
+        </button>
+
+        <!-- Body — hidden by default, revealed when item is open -->
+        <div class="accordion-body">
+            <div class="accordion-body-inner">
+                <p>Fragile X Syndrome (FXS) is the most common inherited intellectual disability and is the leading cause of monogenic autism spectrum disorder (ASD). Both FXS and ASD have serotonergic dysregulation as a consistent feature, due to serotonins role in neurodevelopment, and synaptic maturation. Although psilocybin largely acts on the 5HT2a receptor (serotonergic), its wider effects include the promotion of neural plasticity, via increased BDNF signalling. </p>
+                <br>
+                <p>These researchers had previously shown that microdosing psilocybin in the same rat model as used in this study improved novel object recognition, with this study aiming to identify the mechanisms behind this. To do this, during the microdose treatment period, rats were given a 5HT1a, and 5HT2a receptor antagonist before each dose, as well as a TrkB antagonist (0.5mg/kg & 1mg/kg). All rats were then tested with a novel object recognition task, to assess the recovering of visual learning abilities. </p>
+                <br>
+               <p>As expected, psilocybin was able to improve object recognition in FXS rats, with this effect persisting in both rats given a 5HT1a and 5HT2a antagonist before each dose. On the other hand, rats given a TrkB antagonist (1mg/kg) in combination with psilocybin microdose, did not show recovered ability in the novel object recognition task; however, this was only in rats that experienced the higher dose of TrkB antagonists, not those with a dose of 0.5mg/kg.</p>
+               <br>
+               <p>Since object recognition abilities remained were still recovered in rats given 5HT1a & 5HT2a receptor antagonists, researchers suggest that the mechanism by which psilocybin rescues these cognitive abilities is independent of serotonin receptor activation. Instead, since object recognition was not recovered in rats given a stronger TrkB antagonist, which would disrupt BDNF signalling, researchers suggest that this BDNF signalling pathway is how psilocybin rescues these cognitive deficits.</p>
+               <br> 
+               <p>By separating the therapeutic effects of psilocybin from hallucinatory pathways, the findings of this research show promising evidence for microdosing psilocybin as a potential future treatment.</p>
+
+            </div>
+        </div>
+    </div>
+
+    <!--
+        FIRST ACCORDION ITEM
+        The title button and its corresponding body text.
+        "this" in the onclick passes the button element
+        to toggleAccordion() so it can find its parent item.
+    -->
+    <div class="accordion-item">
+
+        <!-- Title button — clicking toggles this item open/closed -->
+        <button class="accordion-btn" onclick="toggleAccordion(this)">
+            2C-B and Psilocybin show largely similar organisational changes within and between networks, with differences in effect being mediated by differences in monoamine interactions.
+            <span class="accordion-arrow">&#9660;</span>
+        </button>
+
+        <!-- Body — hidden by default, revealed when item is open -->
+        <div class="accordion-body">
+            <div class="accordion-body-inner">
+                <p>While both 2C-B and Psilocybin are psychedelics that primarily act on 5-HT2a receptors, there are several differences in how these drugs each act in the brain. One of these differences is that 2C-B may cause lower levels of dysphoria, making it a better therapeutic alternative. Because of this, researchers aimed to map the differences in how drugs affect brain organisation. </p>
+                  <br>
+                <p>To test this, participants were given a dose of 2C-B, Psilocybin and a placebo, each in a different session. They then underwent a resting-state MRI and completed a variety of questionnaires, with various connectivity measures being taken including: static functional connectivity (sFC), global connectivity (gFC), dynamic connectivity variability (dFC). </p>
+                <br>
+               <p>Both drugs reduced within network sFC within the visual and default mode networks while increasing between - network and subcortical to cortical connectivity. Psilocybin produced more extensive increases in between-network sFC, particularly within the default mode and somatomotor networks. Meanwhile, 2C-B showed connectivity increases in transmodal frontoparietal regions. Dynamic connectivity variance was robustly reduced across the whole brain by both drugs, though psilocybin's reductions were spatially more widespread. Measures of entropy increased comparably under both compounds, concentrated in bilateral extrastriate visual cortex and anterior thalamic nuclei, with no significant between-drug differences.</p>
+               <br>
+               <p>Analysis involving PET scan data of receptor density showed that reductions in dFC in both drug conditions strongly predicted by 5-HT2A receptor density, while increases in entropy aligned inversely with 5-HT1A expression. Drug differences in affinity for monoamine transporters were credited as the primary predictor of spatial differences in sFC, with DAT being responsible for differences in sFC between psilocybin and 2C-B, and SERT being responsible for differences in entropy between the two.</p>
+               <br> 
+                <p>Through partial least squares analysis, a latent variable emerged, accounting for 33% of the variance in subjective experience. This latent variable was characterized by decreases in transmodal cortices and increased in unimodal sensorimotor regions. Based on these findings, authors suggest 2C-B engages the same core network-level mechanisms psilocybin, while its secondary monoaminergic interactions being responsible for spatial differences in sFC.</p>
+                
+            </div>
+        </div>
+
+    </div>
+    <!-- END: first accordion item -->
+
+    <div class="accordion-item">
+
+        <!-- Title button — clicking toggles this item open/closed -->
+        <button class="accordion-btn" onclick="toggleAccordion(this)">
+            Analysis of genetic and electrophysiological changes in orbitofrontal cortex cells shows reduced excitatory signalling after a single dose of psilocybin, with this highlighting the orbitofrontal cortex as a potential site of psilocybin’s therapeutic action. 
+            <!-- Arrow rotates via CSS when parent has "open" class -->
+            <span class="accordion-arrow">&#9660;</span>
+        </button>
+
+        <!-- Body — hidden by default, revealed when item is open -->
+        <div class="accordion-body">
+            <div class="accordion-body-inner">
+                <p>The orbitofrontal cortex (OFC) is implied in the pathology of disorders such as obsessive-compulsive disorder and addiction, 2 conditions psilocybin has been an effective treatment of. Despite this, little is known about how psilocybin interacts with the OFC, to produce its therapeutic effects. Because of this, researchers investigated the impact that single dose of psilocybin has on OFC cells.</p>
+                <br>
+                <p>Mice received a single dose of psilocybin at 1 mg/kg or saline. Twenty-four hours later, OFC tissue was collected for gene expression profiling . Separate groups of mice underwent patch-clamp recordings of layer 5 pyramidal neurons, parvalbumin-positive (PV+) interneurons, and somatostatin-positive (SST+) interneurons in OFC slices.</p>
+                <br>
+                <p>The Layer 5 pyramidal cells showed the greatest gene expression, with these largely impacting synapse formation proteins, such as glutamate receptor subunits. Despite this, PV+ and SST+ cells did not show the same change in gene expression, despite these 3 neurons forming a microcircuit, where PV & SST+ interneurons mediate the output of the pyramidal neuron.</p>
+                <br>
+                <p>Electrophysiological results confirmed a similar picture, with reduced firing rates and decreased spontaneous excitatory signals in pyramidal neurons. Which is consistent with the finding of reduced glutamate receptor subunit expression. While SST+ interneurons showed no change synaptic behaviour, PV+ interneurons showed increased excitability. Since PV+ neurons in this microcircuit act to inhibit the activity of pyramidal cells, authors interpreted this as contributing to a collectively reduction in OFC output. </p>
+                <br>
+                <p>In mice pre-treated with 5-HT2A antagonists, researchers noted the complete abolition all these neuronal changes, confirming the changes were 5-HT2A receptor dependent. Additionally, silencing 5-HT2a receptor in pyramidal neurons prevented psilocybin’s downregulation of the glutamate receptor subunits, thus removing the antidepressant effect in these mice. When the same thing was done in PV+ neurons, there was only a partial reduction in antidepressant effect, suggesting layer 5 pyramidal neurons are the primary target mediating the effects of psilocybin in the OFC.</p>
+                
+                
+            </div>
+        </div>
+
+    </div>
+
+        <hr class="page-rule" />
+
+      </section>
+      <!-- END: page-section #mar2024 -->
+
+
+      <!--
+        ──────────────────────────────────────────────────────────
+        PAGE 4: JUNE 2024
+        ──────────────────────────────────────────────────────────
+        Third publication entry. Replace sample text with your
+        June 2024 content.
+        ──────────────────────────────────────────────────────────
+      -->
+      <section class="page-section" id="Jan26">
+
+        <h1 class="page-title">January 2026</h1>
+        <p class="page-meta">Volume 2 &middot; 4 Papers &middot; </p>
+        <hr class="page-rule-accent" />
+
+        <!--
+    ACCORDION CONTAINER
+    Each accordion-item holds one title and one body.
+    Items start closed by default. Add class "open" to
+    any item to have it expanded on page load.
+-->
+<div class="accordion">
+
+  <div class="accordion-item">
+
+        <!-- Title button — clicking toggles this item open/closed -->
+        <button class="accordion-btn" onclick="toggleAccordion(this)">
+            Electroencephalogram (EEG) reading during Psilocybin exposure reveals specific temporal markers associated with specific subjective experiences.
+            <!-- Arrow rotates via CSS when parent has "open" class -->
+            <span class="accordion-arrow">&#9660;</span>
+        </button>
+
+        <!-- Body — hidden by default, revealed when item is open -->
+        <div class="accordion-body">
+            <div class="accordion-body-inner">
+                <p>There is still much unknown about Psilocybin’s mechanism on the brain. The subjective experience when taking psychedelics can range massively, without there being any concrete predictors or biomarkers that can indicate what the subjective experience may look like.</p>
+                <br>
+                <p>In this study researchers took 
+                  
+                  <span class="dict-link"
+          onmouseenter="showTooltip(event, 'A neuroimaging technique that measures brainwaves')"
+          onmouseleave="hideTooltip()"
+          onclick="showPage('dictionary'); scrollToEntry('entry-EEG')">
+        EEG
+    </span> measures on participants both during resting state and again 60 minutes after administration. They were assessed for 5 minutes with eyes open and for 5 minutes with eyes closed. Lighting and ambient music was used to create pleasant scenes. Participants also filled in the 
+                  
+                  <span class="dict-link"
+          onmouseenter="showTooltip(event, 'A questionnaire that measures consciousness states')"
+          onmouseleave="hideTooltip()"
+          onclick="showPage('dictionary'); scrollToEntry('entry-ASC-5')">
+        ASC-5
+    </span> questionnaire, which quantifies the subjective effects across dimensions of: Boundlessness, Dreadful Ego Dissolution, Visual Restructuralization, Auditory Alterations and Vigilance Reduction.</p>
+                <br>
+                <p>When the five ASC 5 dimensions were broken down, each showed a distinct neural fingerprint. Every ASC-5 item correlated positively with widespread power changes, with items such as Oceanic Boundlessness being tightly linked to increased gamma power particularly in limbic areas, and Anxious Ego Dissolution was more associated with occipital activity. </p>
+                <br>
+                <p>Psilocybin also reshaped the 
+                  
+                  <span class="dict-link"
+          onmouseenter="showTooltip(event, 'A network of brain strucures active during normal wakefulness')"
+          onmouseleave="hideTooltip()"
+          onclick="showPage('dictionary'); scrollToEntry('entry-DMN')">
+        Default Mode Network (DMN)
+    </span> 
+    
+    Compared with placebo, slow frequency (theta, alpha) power dropped across the DMN while fast frequency (beta, gamma1, gamma2) power rose, especially in frontal, temporal and limbic zones. 
+    
+    <span class="dict-link"
+          onmouseenter="showTooltip(event, 'Measuring how much different brain structures communicate')"
+          onmouseleave="hideTooltip()"
+          onclick="showPage('dictionary'); scrollToEntry('entry-ConnAnal')">
+        Connectivity analysis
+    </span> revealed a marked increase in long range links within the DMN at these high frequency bands, whereas low frequency connections weakened. The net effect was a DMN that became more globally synchronized at beta gamma ranges, reflecting the network’s heightened integration during the psychedelic state. </p>
+                <br>
+                <p>Additionally. resting state EEG proved to be a surprisingly strong predictor of how intensely participants rated their psychedelic trip. The researchers first examined baseline power across theta, alpha, beta and gamma bands and linked those values to later ASC 5 scores, showing that higher pre drug activity in fast (beta/gamma) frequencies foretold stronger subjective effects1. Notably, frontal and limbic regions that displayed elevated baseline beta and most gamma power were tied to a more intense psychedelic experience.</p>
+                <br>
+                <p>Overall, this study provides exciting initial biomarkers of psychedelic experiences, which has the potential for improved and tailored clinical intervention.</p>
+                
+            </div>
+        </div>
+    </div>
+
+    <!--
+        FIRST ACCORDION ITEM
+        The title button and its corresponding body text.
+        "this" in the onclick passes the button element
+        to toggleAccordion() so it can find its parent item.
+    -->
+    <div class="accordion-item">
+
+        <!-- Title button — clicking toggles this item open/closed -->
+        <button class="accordion-btn" onclick="toggleAccordion(this)">
+            An alternative salt form psilocybin, psilocybin mucate (L-130), with improved clinical application (greater bio-availability) has been shown to have positive anxiety reducing effects in rats.
+            <!-- Arrow rotates via CSS when parent has "open" class -->
+            <span class="accordion-arrow">&#9660;</span>
+        </button>
+
+        <!-- Body — hidden by default, revealed when item is open -->
+        <div class="accordion-body">
+            <div class="accordion-body-inner">
+                <p>Psilocybin traditionally has a 
+                  
+                  <span class="dict-link"
+          onmouseenter="showTooltip(event, 'How easily a drug is absorbed')"
+          onmouseleave="hideTooltip()"
+          onclick="showPage('dictionary'); scrollToEntry('entry-bioA')">
+        bioavailability
+    </span> of around 52%, as well as a metabolic elimination rate which can vary. This is a problem when medicating with psilocybin, as it can lead to inconsistencies in what the appropriate dose would be.</p>
+                <br>
+                <p>An alternative formulation of psilocybin, (L-130), has been found with a bioavailability of 99%. Here, researchers use a rat model to demonstrate that it is not only safe but also showed expected improvements in anxiety</p>
+                <br>
+                <p>Rats were split into 5 groups, one acting as an unstressed control, with the remaining four receiving either saline or L-130 at daily and weekly intervals. Non-control rats were exposed to varying mild stressors over 28 days to induce anxiety-like symptoms, before undergoing blood work and behavioural assessments.</p>
+                <br>
+                <p>Safety results were encouraging, with no notable differences in blood-related markers, weight, or feed consumption across groups. Daily L-130 treatment significantly reduced 
+                  <span class="dict-link"
+          onmouseenter="showTooltip(event, 'A stress hormone')"
+          onmouseleave="hideTooltip()"
+          onclick="showPage('dictionary'); scrollToEntry('entry-Cortisol')">
+        cortisol
+    </span> levels relative to stressed controls, approaching those of unstressed animals. </p>
+                <br>
+                <p>Behaviourally, this group outperformed controls across all three anxiety tasks. Weekly dosing showed limited and inconsistent effects across measures, and head twitch responses indicating hallucinogenic activity were low and confined to the daily group. No tolerance developed over the 28-day period.</p>
+                <br>
+                <p>These findings suggest L-130 as a strong candidate for further pharmacological development. Its tighter dosage control, enabled by near-complete bioavailability, could allow for at home treatments while minimising the risk of unwanted hallucinogenic effects — making structured, precise clinical application considerably more achievable than with traditional psilocybin</p>
+                
+            </div>
+        </div>
+
+    </div>
+    <!-- END: first accordion item -->
+
+    <div class="accordion-item">
+
+        <!-- Title button — clicking toggles this item open/closed -->
+        <button class="accordion-btn" onclick="toggleAccordion(this)">
+            Different psychedelics show unique changes in multiple transmitter systems in rat Claustrum, implying its role as a ‘nexus’ of psychedelic signalling. 
+            <!-- Arrow rotates via CSS when parent has "open" class -->
+            <span class="accordion-arrow">&#9660;</span>
+        </button>
+
+        <!-- Body — hidden by default, revealed when item is open -->
+        <div class="accordion-body">
+            <div class="accordion-body-inner">
+                <p>The 
+                  
+                  <span class="dict-link"
+          onmouseenter="showTooltip(event, 'Thin grey matter structure with lots of connections')"
+          onmouseleave="hideTooltip()"
+          onclick="showPage('dictionary'); scrollToEntry('entry-Claustrum')">
+        claustrum
+    </span> is a small subcortical structure sitting between the insular cortex and striatum, densely packed with serotonin 5-HT2A receptors. Despite long being theorised as a hub for sensory integration and consciousness, how psychedelics actually alter its neurochemistry had never been directly examined.</p>
+                <br>
+                <p>This study used in vivo microdialysis in freely moving rats to measure how psilocin and the synthetic compound 25I-NBOMe altered extracellular neurotransmitter levels directly within the claustrum. Samples were collected over two hours, with all changes expressed relative to baseline. A wet dog shake test was also used to measure hallucinogenic activity.</p>
+                <br>
+                <p>Both compounds showed elevated 5-HT (serotonin) levels, but 25I-NBOMe produced the strongest cumulative response. Notably, the higher psilocin dose resulted in lower 5-HT release than the lower dose, an effect the authors attribute to dose-dependent recruitment of inhibitory 5-HT1A receptors, which appear to dampen serotonergic output as a form of negative feedback. This self-limiting mechanism is absent with 25I-NBOMe, whose selective and high-affinity 5-HT2A agonism drives prolonged, unmodulated serotonergic activation.</p>
+                <br>
+                <p>The glutamate findings further distinguished the two compounds. 25I-NBOMe induced a more pronounced and sustained elevation in extracellular glutamate, whereas psilocin's response appeared to reach a ceiling effect at higher doses, again pointing toward inhibitory counter-regulation via 5-HT1A engagement. The authors highlight the resulting GLU/GABA ratio as a critical marker with psilocin at lower doses preserving excitatory-inhibitory balance, and 25I-NBOMe shifting the claustrum decisively toward excitatory dominance.</p>
+                <br>
+                <p>Taken together, these findings position the claustrum as a neurochemical convergence point as an active integrator of multiple transmitter systems simultaneously, as opposed to a simple sensory relay station.</p>
+                
+                
+            </div>
+        </div>
+
+    </div>
+    <!--
+        SECOND ACCORDION ITEM
+    -->
+    <div class="accordion-item">
+
+        <button class="accordion-btn" onclick="toggleAccordion(this)">
+            Psilocybin is shown to reverse reward learning deficits, in rat model of depression, suggesting possible reward learning recovery as a mechanism by which psilocybin produces it’s antidepressant effect.
+            <span class="accordion-arrow">&#9660;</span>
+        </button>
+
+        <div class="accordion-body">
+            <div class="accordion-body-inner">
+                <p>It is largely established that psychedelics can have beneficial therapeutic effects across various psychiatric conditions, including major depressive disorder. Despite this, the exact mechanism that underpin this effect is not fully understood.</p>
+                <br>
+                <p>Rats were first trained in a reward learning essay. Here they were given various combinations of ceramic bowls which contained different amounts of a food reward (0, 1, or 2 pellets). This was done in a sequence which trained the rats to recognise how much reward was associated with each bowl creating a positive choice bias. This meant rats were more likely to choose the bowl that gave the most reward.</p>
+                <br>
+                <p>Rats were then split into 3 groups, with 2 groups being treated daily (for 14 days) with interferon alpha to induce a depression like phenotype. The other group remained as a control.</p>
+                <br>
+                <p>After 14 days, rats were re-tested in their reward learning environment. In rats where a depression phenotype was induced, a blunting of their positive choice bias was shown. This meant that while control rats maintained a preference for higher reward options, these rats were indifferent to higher or lower reward options.</p>
+                <br>
+                <p>Within the 2 groups of depressed rats, one group received psilocybin treatment, whereas the other group was given a salient solution to act as a control. In the psilocybin treated group, a significant reversal of the learning impairment was shown by 24 hours and persisted for up to 7 days.</p>
+                <br>
+                <p>Here, researchers demonstrate that psilocybin is able to rapidly restore depression induced deficits in reward learning. They then go on to suggest that this reversal is a potential mechanism by which psilocybin exerts its antidepressant effect. Specifically they reference the nucleus accumbens as a potential site where these changes may take place, as this is an area already implied in reward learning. </p>
+                <br>
+            </div>
+        </div>
+
+    </div>
+    <!-- END: second accordion item -->
+
+</div>
+<!-- END: accordion container -->
+
+        <hr class="page-rule" />
+
+      </section>
+      <!-- END: page-section #jun2024 -->
+
+
+      <!--
+        ──────────────────────────────────────────────────────────
+        PAGE 5: SEPTEMBER 2024
+        ──────────────────────────────────────────────────────────
+        Fourth and final publication entry. Replace sample text
+        with your September 2024 content.
+        ──────────────────────────────────────────────────────────
+      -->
+      <section class="page-section" id="Dec25">
+
+        <h1 class="page-title">December 2025</h1>
+        <p class="page-meta">Volume I &middot; 1 Paper</p>
+        <hr class="page-rule-accent" />
+
+        <div class="accordion">
+
+    <!--
+        FIRST ACCORDION ITEM
+        The title button and its corresponding body text.
+        "this" in the onclick passes the button element
+        to toggleAccordion() so it can find its parent item.
+    -->
+    <div class="accordion-item">
+
+        <!-- Title button — clicking toggles this item open/closed -->
+        <button class="accordion-btn" onclick="toggleAccordion(this)">
+            Benzodiazepines disrupt long term antidepressant effect of psilocybin
+            <!-- Arrow rotates via CSS when parent has "open" class -->
+            <span class="accordion-arrow">&#9660;</span>
+        </button>
+
+        <!-- Body — hidden by default, revealed when item is open -->
+        <div class="accordion-body">
+            <div class="accordion-body-inner">
+                <p>Researchers demonstrate 
+                  
+                  <span class="dict-link"
+          onmouseenter="showTooltip(event, 'A class of drugs that increase GABA signalling')"
+          onmouseleave="hideTooltip()"
+          onclick="showPage('dictionary'); scrollToEntry('entry-Benzo')">
+        Benzodiazepines
+    </span> negate long term antidepressant effect in rat models</p>
+                <br>
+                <p>Researchers gave rats either Saline (S), Saline and Psilocybin (S/P), or Psilocybin with prior administration of 
+                  
+                  <span class="dict-link"
+          onmouseenter="showTooltip(event, 'A commonly used benzodiazepine')"
+          onmouseleave="hideTooltip()"
+          onclick="showPage('dictionary'); scrollToEntry('entry-psilocybin')">
+        Lorazepam
+    </span> (L/P), a benzodiazepine that is often psychiatrically prescribed to manage anxiousness.</p>
+                <br>
+                <p>The antidepressant effects of each condition was measured via the 
+                  
+                  <span class="dict-link"
+          onmouseenter="showTooltip(event, 'A common way of measure antidepressant effectiveness in rats')"
+          onmouseleave="hideTooltip()"
+          onclick="showPage('dictionary'); scrollToEntry('entry-FST')">
+        forced swim test
+    </span>, a common measure of antidepressant effect in rodent models. This was done at 3 and 14 weeks, after administration.</p>
+                <br>
+                <p>At 3 weeks, both S/P and L/P groups were significantly more active in the forced swim test than the Saline control, suggesting an antidepressant effect. At week 14 the S/P group maintained significantly greater movement, demonstrating a long-term antidepressant effect which was expected. The L/P group showed reduced activity at week 14, in line with the Saline control group.</p>
+                <br>
+                <p>While this finding suggests the long term antidepressant effect of Psilocybin is mitigated by Lorazepam, researchers note that this is merely an exploratory study. The lack of positive control, to measure Lorazepam’s effect on the forced swim test, as well as a lack of locomotor assessments means there should be caution surrounding these findings.</p>
+                <br>
+                <p>Despite this, these findings still have interesting implications for treatment protocols involving benzodiazepines, as well as give further insight to the neural mechanisms that underlie psilocybin’s antidepressant effect</p>
+            </div>
+        </div>
+
+    </div>
+    <!-- END: first accordion item -->
+
+    <!--
+        SECOND ACCORDION ITEM
+    -->
+    
+
+</div>
+
+        <hr class="page-rule" />
+
+      </section>
+      <!-- END: page-section #sep2024 -->
+
+
+      <!--
+        ──────────────────────────────────────────────────────────
+        PAGE 6: DICTIONARY
+        ──────────────────────────────────────────────────────────
+        Accessible only from the top navigation bar ("Dictionary"
+        link). Not listed in the sidebar — it's a reference page,
+        separate from the publication archive.
+
+        The dictionary displays terms alphabetically with their
+        definitions, part of speech, and example usage sentences.
+        Add, remove, or edit entries as needed.
+        ──────────────────────────────────────────────────────────
+      -->
+      <section class="page-section" id="dictionary">
+
+        <!-- Page title -->
+        <h1 class="page-title">Dictionary</h1>
+
+        <!-- Metadata sub-heading -->
+        <p class="page-meta">Here you can find definitions of more 'technical' terms you may find across papers we talk about!</p>
+
+        <!-- Accent rule separating header from content -->
+        <hr class="page-rule-accent" />
+
+        <!--
+          DICTIONARY CONTENT
+          Entries are grouped by starting letter.
+          Each group has a letter header (.dict-section-letter)
+          followed by a list (.dictionary-list) of entries.
+
+          ENTRY STRUCTURE:
+            <li class="dict-entry">
+              <div class="dict-term">
+                Term Name
+                <span class="dict-pos">part of speech</span>
+              </div>
+              <div class="dict-definition">
+                The definition text.
+                <span class="dict-example">"Example sentence."</span>
+              </div>
+            </li>
+        -->
+
+        <!-- ── LETTER A ───────────────────────────────────────── -->
+        <div class="dict-section-letter">A</div>
+        <ul class="dictionary-list">
+
+          <!-- Entry: Archive -->
+          <li class="dict-entry" id="entry-ASC-5">
+            <div class="dict-term">
+              ASC-5
+              <span class="dict-pos"></span>
+            </div>
+            <div class="dict-definition">
+              The 5-Dimensional Altered States of Consciousness Questionnaire (ASC-5) scale measures is the name of a questionnaire commonly used to measure changes in an individuals conscious state. It measures this across 5 dimensions: Oceanic Boundlessness, Anxious Ego Dissolution, Visionary Restructuralization, Auditory Alterations and Reduction of Vigilance.
+              
+          
+            </div>
+          </li>
+
+          <!-- Entry: Annotation -->
+          <!--<li class="dict-entry">
+            <div class="dict-term">
+              Annotation
+              <span class="dict-pos">noun</span>
+            </div>
+            <div class="dict-definition">
+              A note added to a text or diagram giving explanation
+              or comment.
+              <span class="dict-example">
+                "Her annotations in the margins turned the volume
+                into a palimpsest of decades."
+              </span>
+            </div>
+          </li>
+        -->
+
+        </ul>
+        <!-- END: letter A -->
+
+        <!-- ── LETTER B ───────────────────────────────────────── -->
+        <div class="dict-section-letter">B</div>
+        <ul class="dictionary-list">
+
+          <!-- Entry: Chronicle -->
+          <li class="dict-entry" id="entry-Benzo">
+            <div class="dict-term">
+              Benzodiazepines
+            </div>
+            <div class="dict-definition">
+              A class of drug that acts on GABA receptors to reduce the nervous system. It is often used in treatment for anxiety, insomnia and seizures
+              
+            </div>
+          </li>
+
+          <!-- Entry: Colophon -->
+          <li class="dict-entry" id="entry-bioA">
+            <div class="dict-term">
+              Bio-availability
+           
+            </div>
+            <div class="dict-definition">
+              The the percentage of a drug that is able to enter the bloodstream and have an effect. The higher the bio-availability of a substance, the more it is able to be absorbed into the bloodstream
+              
+            </div>
+          </li>
+
+        </ul>
+        <!-- END: letter C -->
+
+        <!-- ── LETTER C ───────────────────────────────────────── -->
+        <div class="dict-section-letter">C</div>
+        <ul class="dictionary-list">
+
+          <!-- Entry: Edition -->
+          <li class="dict-entry" id="entry-Claustrum">
+            <div class="dict-term">
+              Claustrum
+            
+            </div>
+            <div class="dict-definition">
+              A thin layer of grey matter on each side of the brain that connects to many other brain areas
+              
+            </div>
+          </li>
+
+          <li class="dict-entry" id="entry-ConnAnal">
+            <div class="dict-term">
+              Connectivity Analysis
+             
+            </div>
+            <div class="dict-definition">
+              An analysis technique that measures the statistical relationships and communication patterns between different brain regions
+              
+            </div>
+          </li>
+
+          <li class="dict-entry" id="entry-Cortisol">
+            <div class="dict-term">
+              Cortisol
+           
+            </div>
+            <div class="dict-definition">
+              A hormone that (amongst other things) is largely involved in stress signalling
+              
+            </div>
+          </li>
+
+        
+
+        </ul>
+        <!-- END: letter C -->
+
+        <!-- ── LETTER D ───────────────────────────────────────── -->
+        <div class="dict-section-letter">D</div>
+        <ul class="dictionary-list">
+
+          <li class="dict-entry" id="entry-DMN">
+            <div class="dict-term">
+              Default Mode Network
+              
+            </div>
+            <div class="dict-definition">
+              A large-scale brain network often active in wakeful thought when one is not focused on the outside world
+              
+            </div>
+          </li>
+
+        </ul>
+        <!-- END: letter D -->
+
+        <!-- ── LETTER E ───────────────────────────────────────── -->
+        <div class="dict-section-letter">E</div>
+        <ul class="dictionary-list">
+
+          <!-- Entry: Masthead -->
+          <li class="dict-entry" id="entry-EEG  ">
+            <div class="dict-term">
+              Electroencephalogram (EEG)
+              
+            </div>
+            <div class="dict-definition">
+              A non-invase method of measuring patterns of activity in the brain. It specifically measures differences in wave frequencies at a high level of time accuracy
+              
+            </div>
+          </li>
+
+
+        </ul>
+        <!-- END: letter M -->
+
+        <!-- ── LETTER P ───────────────────────────────────────── -->
+        <div class="dict-section-letter">F</div>
+        <ul class="dictionary-list">
+
+          <!-- Entry: Palimpsest -->
+           <li class="dict-entry" id="entry-FST">
+            <div class="dict-term">
+              Forced Swim Test
+              
+            </div>
+            <div class="dict-definition">
+              A behavioural test which assesses the efficacy of potential antidepressant treatments. It involves putting a rat or mouse into a small tank of water, from which it cannot escape. Spending more time swimming and less time floating suggests and antidepressant effect, and vice versa
+              
+            </div>
+          </li>
+
+        
+
+        </ul>
+        <!-- END: letter P -->
+
+        <!-- ── LETTER G ───────────────────────────────────────── -->
+         <!--
+        <div class="dict-section-letter">G</div>
+        <ul class="dictionary-list">
+
+        
+          <li class="dict-entry" id="entry-FST">
+            <div class="dict-term">
+              Forced Swim Test
+              
+            </div>
+            <div class="dict-definition">
+              A behavioural test which assesses the efficacy of potential antidepressant treatments. It involves putting a rat or mouse into a small tank of water, from which it cannot escape. Spending more time swimming and less time floating suggests and antidepressant effect, and vice versa
+              
+            </div>
+          </li>
+        
+        </ul>
+         
+
+       
+        <div class="dict-section-letter">V</div>
+        <ul class="dictionary-list">
+
+         
+          <li class="dict-entry">
+            <div class="dict-term">
+              Volume
+              
+            </div>
+            <div class="dict-definition">
+              A single book forming part of a larger work, or
+              one book in a series. Also used to refer to a bound
+              book as a physical object, regardless of series.
+              <span class="dict-example">
+                "Volume I closed quietly; Volume II announced
+                itself with a scandal."
+              </span>
+            </div>
+          </li>
+
+        </ul>
+        -->
+        <!-- END: letter V -->
+
+      </section>
+      <!-- END: page-section #dictionary -->
+
+
+    </main>
+    <!-- END: main content area -->
+
+  </div>
+  <!-- END: layout container -->
+
+
+  <!--
+    ══════════════════════════════════════════════════════════════
+    JAVASCRIPT — PAGE NAVIGATION LOGIC
+    ══════════════════════════════════════════════════════════════
+    This script handles all the interactivity of the site.
+    There is ONE primary function: showPage(pageId).
+
+    HOW IT WORKS:
+      1. Every time a sidebar button or nav link is clicked,
+         it calls showPage() with the ID of the target page
+         (e.g. "jan2024", "dictionary", "intro").
+
+      2. showPage() finds ALL .page-section elements and removes
+         the "active" class from each of them — hiding them all.
+
+      3. It then finds ALL .sidebar-btn elements and removes the
+         "active" class — resetting all buttons to their
+         inactive appearance.
+
+      4. It adds the "active" class ONLY to:
+            a) The <section> whose id matches pageId
+            b) The <button> whose id is "btn-" + pageId
+
+      5. For the dictionary page (which has no sidebar button),
+         we also handle the top nav link active states.
+
+    This pattern — hide all, then show one — is a very clean
+    and reliable approach to tab/page switching. No routing
+    library or framework is needed.
+    ══════════════════════════════════════════════════════════════
+  -->
+  <script>
+    /*
+    ──────────────────────────────────────────────────────────────
+    showPage(pageId)
+    ──────────────────────────────────────────────────────────────
+    The central navigation function. Called by every button and link.
+
+    @param {string} pageId — The id of the <section> to display.
+                             e.g. "intro", "jan2024", "dictionary"
+    ──────────────────────────────────────────────────────────────
+    */
+    function showPage(pageId) {
+
+      /*
+        ── STEP 1: Hide all page sections ──
+        querySelectorAll returns a NodeList of every element
+        matching the ".page-section" CSS selector.
+        We loop over each one and remove its "active" class,
+        which sets display:none on all of them.
+      */
+      document.querySelectorAll('.page-section').forEach(function(section) {
+        section.classList.remove('active');
+      });
+
+      /*
+        ── STEP 2: Deactivate all sidebar buttons ──
+        Loop over every sidebar button and remove its "active"
+        class, resetting all of them to their unselected style.
+      */
+      document.querySelectorAll('.sidebar-btn').forEach(function(btn) {
+        btn.classList.remove('active');
+      });
+
+      /*
+        ── STEP 3: Deactivate all top nav links ──
+        Also reset any "active" styling on the top nav links
+        so we can re-apply it selectively below.
+      */
+      document.querySelectorAll('.nav-links a').forEach(function(link) {
+        link.classList.remove('active');
+      });
+
+      /*
+        ── STEP 4: Show the target page section ──
+        getElementById finds the <section> whose `id` attribute
+        matches our pageId argument. We then add the "active"
+        class, which sets display:block and triggers the fadeIn
+        animation defined in our CSS.
+      */
+      var targetSection = document.getElementById(pageId);
+      if (targetSection) {
+        /*
+          The section exists — make it visible.
+          The CSS animation "fadeIn" will play automatically
+          because the .page-section.active rule uses
+          animation: fadeIn 0.4s ease.
+        */
+        targetSection.classList.add('active');
+      }
+
+      /*
+        ── STEP 5: Activate the matching sidebar button ──
+        Sidebar button IDs follow the convention "btn-" + pageId.
+        For example, if pageId is "jan2024", we look for
+        the button with id="btn-jan2024".
+
+        If no such button exists (e.g. for the "dictionary" page,
+        which has no sidebar entry), getElementById returns null
+        and the if-check prevents an error.
+      */
+      var targetBtn = document.getElementById('btn-' + pageId);
+      if (targetBtn) {
+        /*
+          The sidebar button exists — mark it as active.
+          This applies the accent red left border and
+          elevated background styles defined in CSS.
+        */
+        targetBtn.classList.add('active');
+      }
+
+      /*
+        ── STEP 6: Handle top nav link active states ──
+        The top nav has two links: Home (#nav-home) and
+        Dictionary (#nav-dictionary).
+
+        If the user navigated to the dictionary, activate
+        the Dictionary nav link.
+        If they went anywhere else (any publication page
+        or the intro), activate the Home nav link.
+      */
+      if (pageId === 'dictionary') {
+        /*
+          Dictionary page: activate the Dictionary nav link.
+          getElementById finds the <a id="nav-dictionary"> element.
+        */
+        var dictNavLink = document.getElementById('nav-dictionary');
+        if (dictNavLink) {
+          dictNavLink.classList.add('active');
+        }
+      } else {
+        /*
+          Any other page: activate the Home nav link.
+          This covers intro, jan2024, mar2024, jun2024, sep2024.
+        */
+        var homeNavLink = document.getElementById('nav-home');
+        if (homeNavLink) {
+          homeNavLink.classList.add('active');
+        }
+      }
+
+      /*
+        ── STEP 7: Scroll the main content to the top ──
+        When switching pages, it would be jarring to land
+        halfway down the new page. We scroll the window
+        back to the top to simulate a new page load.
+
+        We scroll to y=navHeight so the user sees the top
+        of the content, not the underside of the nav bar.
+      */
+      window.scrollTo({
+        top: 0,         /* Scroll to the very top of the document */
+        behavior: 'smooth' /* Smooth animated scroll, not an instant jump */
+      });
+
+    }
+    /* ── END: showPage() ── */
+/*
+    toggleAccordion(element)
+    ─────────────────────────────────────────────────────
+    Called when an accordion title button is clicked.
+    Toggles the "open" class on the parent accordion-item.
+    If it was open it closes, if it was closed it opens.
+    All other items are left in their current state so
+    multiple sections can be open simultaneously if desired.
+    
+    @param {HTMLElement} element — the button that was clicked,
+    passed in via onclick="toggleAccordion(this)"
+    ─────────────────────────────────────────────────────
+*/
+function toggleAccordion(element) {
+    /* 
+        Walk up from the button to its parent accordion-item.
+        This is more reliable than using an id since it works
+        regardless of how deeply nested the button is.
+    */
+    var item = element.closest('.accordion-item');
+    /* Toggle the open class — adds it if absent, removes if present */
+    item.classList.toggle('open');
+}
+
+    /*
+    ──────────────────────────────────────────────────────────────
+    INITIAL PAGE LOAD SETUP
+    ──────────────────────────────────────────────────────────────
+    When the page first loads, we want the Introduction page
+    to be active and the Home nav link to be highlighted.
+
+    The Introduction section already has class="active" in the
+    HTML (we set it manually), and the sidebar intro button
+    also has class="active" in the HTML. However, we also call
+    showPage('intro') here to make sure all the JavaScript state
+    (including the nav link active state) is set correctly from
+    the very start, regardless of the HTML default classes.
+
+    We wrap it in a DOMContentLoaded listener to ensure the
+    script runs AFTER the HTML has been parsed and all elements
+    are available in the DOM.
+    */
+    document.addEventListener('DOMContentLoaded', function() {
+      /*
+        Trigger the intro page as the default shown page.
+        This ensures nav link "active" classes are correctly
+        applied from the first moment the page is visible.
+      */
+      showPage('intro');
+    });
+    /* ── END: initial setup ── */
+
+/*
+    showTooltip(event, text)
+    Fills the tooltip with the summary text and positions
+    it near the cursor. Called on mouseenter of any dict-link.
+*/
+function showTooltip(event, text) {
+    var tooltip = document.getElementById('dict-tooltip');
+    tooltip.textContent = text;
+    tooltip.style.left = (event.clientX + 15) + 'px';
+    tooltip.style.top = (event.clientY + 15) + 'px';
+    tooltip.style.display = 'block';
+}
+
+/*
+    hideTooltip()
+    Hides the tooltip. Called on mouseleave of any dict-link.
+*/
+function hideTooltip() {
+    document.getElementById('dict-tooltip').style.display = 'none';
+}
+
+function scrollToEntry(entryId) {
+    /* 
+        Small timeout is necessary — without it the scroll fires
+        before showPage() has made the dictionary section visible,
+        meaning there is nothing to scroll to yet.
+    */
+    setTimeout(function() {
+        var entry = document.getElementById(entryId);
+        if (entry) {
+            entry.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, 100);
+}
+
+  </script>
+  <!-- END: JavaScript -->
+<!--
+    TOOLTIP ELEMENT
+    Sits outside all other content. JavaScript moves it
+    to the correct screen position and fills in the correct
+    summary text each time a different word is hovered.
+    pointer-events: none prevents it from interfering with
+    mouse events on the words beneath it.
+-->
+<div class="dict-tooltip" id="dict-tooltip"></div>
+
+</body>
+</html>
